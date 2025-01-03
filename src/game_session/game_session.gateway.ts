@@ -15,7 +15,7 @@ export class GameSessionGateway implements OnGatewayConnection {
     if (this.gameGraph) {
       // TODO: Handle reconnection
     }
-    this.gameGraph = this.appService.startGame(
+    this.appService.startGame(
       'I am exploring the ocean for sunken treasure.',
     );
   }
