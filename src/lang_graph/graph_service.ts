@@ -9,7 +9,7 @@ import { isAIMessageChunk } from '@langchain/core/messages';
 export class GraphService {
   private graph = null;
   private memory = new MemorySaver();
-  private configs: Array<{configurable: {thread_id: string}}> = [];
+  private configs: Array<{ configurable: { thread_id: string } }> = [];
 
   async startGame(input: typeof InputAnnotation.State): Promise<void> {
     this.graph = this.graph ?? this.buildGraph();
@@ -20,9 +20,13 @@ export class GraphService {
     const initialState = await prepareInputNode(input);
 
     do {
-      const stream = await this.graph.stream(initialState, config)
+      const stream = await this.graph.stream(initialState, config);
       for await (const [msg] of stream) {
-        if (isAIMessageChunk(msg) && msg.content && typeof msg.content === 'string') {
+        if (
+          isAIMessageChunk(msg) &&
+          msg.content &&
+          typeof msg.content === 'string'
+        ) {
           console.log(msg.content);
         }
       }
@@ -36,7 +40,7 @@ export class GraphService {
       .addNode('sceneNode', sceneNode)
       .addEdge(START, 'sceneNode')
       .addEdge('sceneNode', END)
-      .compile({checkpointer: this.memory});
+      .compile({ checkpointer: this.memory });
   }
 
   getState(threadId: number) {
@@ -50,7 +54,7 @@ export class GraphService {
 
 function toConfig(threadId: number) {
   return {
-    configurable: {thread_id: String(threadId)},
-    streamMode: "messages",
+    configurable: { thread_id: String(threadId) },
+    streamMode: 'messages',
   };
 }
