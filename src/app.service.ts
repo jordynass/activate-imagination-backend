@@ -6,6 +6,6 @@ export class AppService {
   constructor(private readonly graphService: GraphService) {}
 
   async startGame(storyPrompt: string): Promise<void> {
-    await this.graphService.startGame({storyPrompt});
+    await this.graphService.startGame({ storyPrompt });
   }
 }

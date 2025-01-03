@@ -4,9 +4,11 @@ import { ChatPromptTemplate } from '@langchain/core/prompts';
 export async function prepareInputNode(
   input: typeof InputAnnotation.State,
 ): Promise<typeof GraphAnnotation.State> {
-  await promptTemplate.invoke({storyPrompt: input.storyPrompt});
-  const {messages} = await promptTemplate.invoke({storyPrompt: input.storyPrompt});
-  return {messages};
+  await promptTemplate.invoke({ storyPrompt: input.storyPrompt });
+  const { messages } = await promptTemplate.invoke({
+    storyPrompt: input.storyPrompt,
+  });
+  return { messages };
 }
 
 const promptTemplate = ChatPromptTemplate.fromMessages([
