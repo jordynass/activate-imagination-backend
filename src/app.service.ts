@@ -12,8 +12,4 @@ export class AppService {
       messages: [new SystemMessage(storyPrompt)],
     });
   }
-  
-  getHello(): string {
-    return 'Hello World!';
-  }
 }
