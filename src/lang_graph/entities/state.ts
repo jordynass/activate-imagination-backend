@@ -10,4 +10,5 @@ export const GraphAnnotation = Annotation.Root({
     reducer: messagesStateReducer,
     default: () => [],
   }),
+  storyPrompt: Annotation<string>,
 });
