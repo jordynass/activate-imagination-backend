@@ -1,4 +1,3 @@
-// src/events/events.gateway.ts
 import {
   WebSocketGateway,
   SubscribeMessage,
