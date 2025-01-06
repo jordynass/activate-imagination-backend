@@ -5,7 +5,7 @@ import { StoryDto } from './entities/io';
 import { sceneNode } from './nodes/scene/scene_node';
 import { prepareInputNode } from './nodes/prepare_input_node';
 import { isAIMessageChunk } from '@langchain/core/messages';
-import { OutputService } from 'src/output_service';
+import { OutputService } from 'src/output/output.service';
 
 @Injectable()
 export class GraphService {
