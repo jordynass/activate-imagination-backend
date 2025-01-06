@@ -55,15 +55,17 @@ export class GameSessionGateway implements OnGatewayConnection {
   }
 }
 
-function stringifyWithTruncation(obj: object) {
+function stringifyWithTruncation(obj: object, maxStringLength = 50): string {
   return JSON.stringify(
     obj,
     (key, value) => {
-      if (typeof value === 'string' && value.length > 50) {
-        return value.substring(0, 50) + '...';
+      if (typeof value === 'string' && value.length > maxStringLength) {
+        return value.substring(0, maxStringLength) + '...';
       }
       return value;
     },
     2,
   );
 }
+
+export const TEST_ONLY = { stringifyWithTruncation };
