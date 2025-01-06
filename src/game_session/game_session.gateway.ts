@@ -46,10 +46,10 @@ export class GameSessionGateway implements OnGatewayConnection {
       return `Invalid story data: ${validation.error.errors.map((e) => e.message).join('\n')}`;
     }
 
-    const stroyData: StoryDto = validation.data;
+    const storyData: StoryDto = validation.data;
     console.log(
       'Received valid story data:',
-      stringifyWithTruncation(stroyData),
+      stringifyWithTruncation(storyData),
     );
     return 'New game';
   }
