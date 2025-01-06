@@ -4,9 +4,13 @@ import {
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { AppService } from 'src/app.service';
-import { type SceneDto, type StoryDto } from 'src/lang_graph/entities/io';
+import {
+  SceneSchema,
+  StorySchema,
+  type SceneDto,
+  type StoryDto,
+} from 'src/lang_graph/entities/io';
 
 @WebSocketGateway()
 export class GameSessionGateway implements OnGatewayConnection {
@@ -17,16 +21,49 @@ export class GameSessionGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('newScene')
-  @UsePipes(new ValidationPipe({ transform: true }))
   handleNewScene(@MessageBody() data: SceneDto): string {
-    console.log(data);
+    const validation = SceneSchema.safeParse(data);
+
+    if (!validation.success) {
+      console.error('New Scene Validation failed:', validation.error.errors);
+      return `Invalid scene data: ${validation.error.errors.map((e) => e.message).join('\n')}`;
+    }
+
+    const sceneData: SceneDto = validation.data;
+    console.log(
+      'Received valid scene data:',
+      stringifyWithTruncation(sceneData),
+    );
     return 'New scene';
   }
 
   @SubscribeMessage('newGame')
-  @UsePipes(new ValidationPipe({ transform: true }))
   handleNewGame(@MessageBody() data: StoryDto): string {
-    console.log(data);
+    const validation = StorySchema.safeParse(data);
+
+    if (!validation.success) {
+      console.error('New Game Validation failed:', validation.error.errors);
+      return `Invalid story data: ${validation.error.errors.map((e) => e.message).join('\n')}`;
+    }
+
+    const stroyData: StoryDto = validation.data;
+    console.log(
+      'Received valid story data:',
+      stringifyWithTruncation(stroyData),
+    );
     return 'New game';
   }
+}
+
+function stringifyWithTruncation(obj: object) {
+  return JSON.stringify(
+    obj,
+    (key, value) => {
+      if (typeof value === 'string' && value.length > 50) {
+        return value.substring(0, 50) + '...';
+      }
+      return value;
+    },
+    2,
+  );
 }
