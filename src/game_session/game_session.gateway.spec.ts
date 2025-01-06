@@ -2,29 +2,39 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameSessionGateway } from './game_session.gateway';
 import { TEST_ONLY } from './game_session.gateway';
 import { AppService } from 'src/app.service';
+import { OutputService } from 'src/output_service';
 import { SceneDto, StoryDto } from 'src/lang_graph/entities/io';
+
+const mockAppService = { startGame: jest.fn() };
+const mockOutputService = { setSocket: jest.fn() };
 
 describe('GameSessionGateway', () => {
   let gateway: GameSessionGateway;
-  const mockAppService = { startGame: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GameSessionGateway,
         { provide: AppService, useValue: mockAppService },
+        { provide: OutputService, useValue: mockOutputService },
       ],
     }).compile();
 
     gateway = module.get<GameSessionGateway>(GameSessionGateway);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(gateway).toBeDefined();
   });
 
-  it('should return "Connected" on handleConnection', () => {
-    expect(gateway.handleConnection()).toBe('Connected');
+  it('should set socket on handleConnection', () => {
+    const socket = {} as any;
+    gateway.handleConnection(socket);
+    expect(mockOutputService.setSocket).toHaveBeenCalledWith(socket);
   });
 
   it('should validate and handle new scene correctly', () => {

@@ -3,7 +3,9 @@ import {
   OnGatewayConnection,
   SubscribeMessage,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { AppService } from 'src/app.service';
 import {
   SceneSchema,
@@ -11,13 +13,18 @@ import {
   type SceneDto,
   type StoryDto,
 } from 'src/lang_graph/entities/io';
+import { OutputService } from 'src/output_service';
 
 @WebSocketGateway()
 export class GameSessionGateway implements OnGatewayConnection {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly outputService: OutputService,
+  ) {}
 
-  handleConnection() {
-    return 'Connected';
+  handleConnection(@ConnectedSocket() client: Socket) {
+    this.outputService.setSocket(client);
+    console.log(`Connected to client: ${client.id}`);
   }
 
   @SubscribeMessage('newScene')
@@ -40,7 +47,6 @@ export class GameSessionGateway implements OnGatewayConnection {
   @SubscribeMessage('newGame')
   handleNewGame(@MessageBody() data: StoryDto): string {
     const validation = StorySchema.safeParse(data);
-
     if (!validation.success) {
       console.error('New Game Validation failed:', validation.error.errors);
       return `Invalid story data: ${validation.error.errors.map((e) => e.message).join('\n')}`;
@@ -51,6 +57,7 @@ export class GameSessionGateway implements OnGatewayConnection {
       'Received valid story data:',
       stringifyWithTruncation(storyData),
     );
+
     this.appService.startGame(storyData);
     return 'New game';
   }

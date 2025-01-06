@@ -5,6 +5,7 @@ import { StoryDto } from './entities/io';
 import { sceneNode } from './nodes/scene/scene_node';
 import { prepareInputNode } from './nodes/prepare_input_node';
 import { isAIMessageChunk } from '@langchain/core/messages';
+import { OutputService } from 'src/output_service';
 
 @Injectable()
 export class GraphService {
@@ -12,7 +13,9 @@ export class GraphService {
   private memory = new MemorySaver();
   private configs: Array<{ configurable: { thread_id: string } }> = [];
 
-  async startGame(input: StoryDto): Promise<void> {
+  constructor(private readonly outputService: OutputService) {}
+
+  async startGame(input: StoryDto) {
     this.graph = this.graph ?? this.buildGraph();
     const configId = this.configs.length;
     const config = toConfig(configId);
@@ -23,14 +26,11 @@ export class GraphService {
     do {
       const stream = await this.graph.stream(initialState, config);
       for await (const [msg] of stream) {
-        if (
-          isAIMessageChunk(msg) &&
-          msg.content &&
-          typeof msg.content === 'string'
-        ) {
-          console.log(msg.content);
+        if (isAIMessageChunk(msg) && typeof msg.content === 'string') {
+          this.outputService.stream(msg.content);
         }
       }
+      this.outputService.endStream();
     } while (this.getState(configId).next);
   }
 
