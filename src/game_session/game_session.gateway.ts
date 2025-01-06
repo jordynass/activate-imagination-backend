@@ -51,6 +51,7 @@ export class GameSessionGateway implements OnGatewayConnection {
       'Received valid story data:',
       stringifyWithTruncation(storyData),
     );
+    this.appService.startGame(storyData);
     return 'New game';
   }
 }

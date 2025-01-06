@@ -56,6 +56,16 @@ describe('GameSessionGateway', () => {
     const invalidResult = gateway.handleNewGame(invalidStory as any);
     expect(invalidResult).toContain('Invalid story data');
   });
+
+  it('should call startGame on new game', () => {
+    const story: StoryDto = {
+      storyPrompt: 'Once upon a time...',
+      photo: 'data:image/png;base64,VALIDBASE64STRING',
+    };
+
+    gateway.handleNewGame(story);
+    expect(mockAppService.startGame).toHaveBeenCalledWith(story);
+  });
 });
 
 describe('stringifyWithTruncation helper', () => {
