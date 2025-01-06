@@ -1,8 +1,9 @@
-import { GraphAnnotation, InputAnnotation } from '../entities/state';
+import { StoryDto } from '../entities/io';
+import { GraphAnnotation } from '../entities/state';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 export async function prepareInputNode(
-  input: typeof InputAnnotation.State,
+  input: StoryDto,
 ): Promise<typeof GraphAnnotation.State> {
   const { messages } = await promptTemplate.invoke({
     storyPrompt: input.storyPrompt,

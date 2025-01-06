@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateGraph, START, END, MemorySaver } from '@langchain/langgraph';
-import { GraphAnnotation, InputAnnotation } from './entities/state';
+import { GraphAnnotation } from './entities/state';
+import { StoryDto } from './entities/io';
 import { sceneNode } from './nodes/scene/scene_node';
 import { prepareInputNode } from './nodes/prepare_input_node';
 import { isAIMessageChunk } from '@langchain/core/messages';
@@ -11,7 +12,7 @@ export class GraphService {
   private memory = new MemorySaver();
   private configs: Array<{ configurable: { thread_id: string } }> = [];
 
-  async startGame(input: typeof InputAnnotation.State): Promise<void> {
+  async startGame(input: StoryDto): Promise<void> {
     this.graph = this.graph ?? this.buildGraph();
     const configId = this.configs.length;
     const config = toConfig(configId);
