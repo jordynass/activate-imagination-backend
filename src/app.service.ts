@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GraphService } from './lang_graph/graph_service';
+import { GraphService } from './lang_graph/graph_service/graph.service';
 import { StoryDto } from './lang_graph/entities/io';
 
 /** This layer decouples the WebSocket gateway from the business logic. */

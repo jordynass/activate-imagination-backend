@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameSessionGateway } from './game_session.gateway';
 import { TEST_ONLY } from './game_session.gateway';
 import { AppService } from 'src/app.service';
-import { OutputService } from 'src/output/output.service';
+import { OutputService } from 'src/output_service/output.service';
 import { SceneDto, StoryDto } from 'src/lang_graph/entities/io';
 
 const mockAppService = { startGame: jest.fn() };

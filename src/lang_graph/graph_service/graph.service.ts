@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { StateGraph, START, END, MemorySaver } from '@langchain/langgraph';
-import { GraphAnnotation } from './entities/state';
-import { StoryDto } from './entities/io';
-import { sceneNode } from './nodes/scene/scene_node';
-import { prepareInputNode } from './nodes/prepare_input_node';
-import { isAIMessageChunk } from '@langchain/core/messages';
+import { GraphAnnotation } from 'src/lang_graph/entities/state';
+import { StoryDto } from 'src/lang_graph/entities/io';
+import { sceneNode } from 'src/lang_graph/nodes/scene/scene_node';
+import { prepareInputNode } from 'src/lang_graph/nodes/prepare_input_node';
 import { OutputService } from 'src/output_service/output.service';
+import { isAIMessageChunk } from '@langchain/core/messages';
 
 @Injectable()
 export class GraphService {

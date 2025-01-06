@@ -12,6 +12,10 @@ describe('OutputService', () => {
     service = module.get<OutputService>(OutputService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
