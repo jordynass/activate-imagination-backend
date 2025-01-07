@@ -15,6 +15,7 @@ export class OutputService {
       console.error(
         `Socket has not been set yet so OutputService cannot stream`,
       );
+      return;
     }
     this.socket.emit('output', {
       content: chunk,
