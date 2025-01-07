@@ -2,21 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OutputService } from './output.service';
 
 describe('OutputService', () => {
-  let service: OutputService;
-
-  beforeEach(async () => {
+  async function setup() {
     const module: TestingModule = await Test.createTestingModule({
       providers: [OutputService],
     }).compile();
 
-    service = module.get<OutputService>(OutputService);
-  });
-
-  afterEach(() => {
+    const service = module.get<OutputService>(OutputService);
     jest.clearAllMocks();
-  });
+    return { service };
+  }
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
+    const { service } = await setup();
     expect(service).toBeDefined();
   });
 });

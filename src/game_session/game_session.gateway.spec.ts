@@ -5,13 +5,10 @@ import { AppService } from 'src/app.service';
 import { OutputService } from 'src/output_service/output.service';
 import { SceneDto, StoryDto } from 'src/lang_graph/entities/io';
 
-const mockAppService = { startGame: jest.fn() };
-const mockOutputService = { setSocket: jest.fn() };
-
 describe('GameSessionGateway', () => {
-  let gateway: GameSessionGateway;
-
-  beforeEach(async () => {
+  async function setup() {
+    const mockAppService = { startGame: jest.fn() };
+    const mockOutputService = { setSocket: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GameSessionGateway,
@@ -20,24 +17,25 @@ describe('GameSessionGateway', () => {
       ],
     }).compile();
 
-    gateway = module.get<GameSessionGateway>(GameSessionGateway);
-  });
-
-  afterEach(() => {
+    const gateway = module.get<GameSessionGateway>(GameSessionGateway);
     jest.clearAllMocks();
-  });
+    return { gateway, mockAppService, mockOutputService };
+  }
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
+    const { gateway } = await setup();
     expect(gateway).toBeDefined();
   });
 
-  it('should set socket on handleConnection', () => {
+  it('should set socket on handleConnection', async () => {
+    const { gateway, mockOutputService } = await setup();
     const socket = {} as any;
     gateway.handleConnection(socket);
     expect(mockOutputService.setSocket).toHaveBeenCalledWith(socket);
   });
 
-  it('should validate and handle new scene correctly', () => {
+  it('should validate and handle new scene correctly', async () => {
+    const { gateway } = await setup();
     const validScene: SceneDto = {
       photo: 'data:image/png;base64,VALIDBASE64STRING',
     };
@@ -50,7 +48,8 @@ describe('GameSessionGateway', () => {
     expect(invalidResult).toContain('Invalid scene data');
   });
 
-  it('should validate and handle new game correctly', () => {
+  it('should validate and handle new game correctly', async () => {
+    const { gateway } = await setup();
     const validStory: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: 'data:image/png;base64,VALIDBASE64STRING',
@@ -67,7 +66,8 @@ describe('GameSessionGateway', () => {
     expect(invalidResult).toContain('Invalid story data');
   });
 
-  it('should call startGame on new game', () => {
+  it('should call startGame on new game', async () => {
+    const { gateway, mockAppService } = await setup();
     const story: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: 'data:image/png;base64,VALIDBASE64STRING',

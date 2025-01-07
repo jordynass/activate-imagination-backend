@@ -2,12 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GraphService } from './graph.service';
 import { OutputService } from 'src/output_service/output.service';
 
-const mockOutputService = { setSocket: jest.fn() };
-
 describe('GraphService', () => {
-  let service: GraphService;
-
-  beforeEach(async () => {
+  async function setup() {
+    const mockOutputService = { setSocket: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GraphService,
@@ -15,14 +12,13 @@ describe('GraphService', () => {
       ],
     }).compile();
 
-    service = module.get<GraphService>(GraphService);
-  });
-
-  afterEach(() => {
+    const service = module.get<GraphService>(GraphService);
     jest.clearAllMocks();
-  });
+    return { service, mockOutputService };
+  }
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
+    const { service } = await setup();
     expect(service).toBeDefined();
   });
 });
