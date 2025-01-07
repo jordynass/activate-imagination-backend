@@ -59,3 +59,5 @@ function toConfig(threadId: number) {
     streamMode: 'messages',
   };
 }
+
+export const TEST_ONLY = { toConfig };
