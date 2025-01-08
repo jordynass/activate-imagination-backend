@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const base64Regex = /^data:image\/[a-z]+;base64,[A-Za-z0-9+/]+={0,2}$/;
+const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
 
 export const StorySchema = z.object({
   storyPrompt: z.string(),

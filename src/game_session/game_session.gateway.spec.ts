@@ -37,9 +37,9 @@ describe('GameSessionGateway', () => {
   it('should validate and handle new scene correctly', async () => {
     const { gateway } = await setup();
     const validScene: SceneDto = {
-      photo: 'data:image/png;base64,VALIDBASE64STRING',
+      photo: '//VALIDBASE64STRING//',
     };
-    const invalidScene = { photo: 'INVALIDBASE64STRING' };
+    const invalidScene = { photo: '--INVALIDBASE64STRING--' };
 
     const validResult = gateway.handleNewScene(validScene);
     expect(validResult).toBe('New scene');
@@ -52,11 +52,11 @@ describe('GameSessionGateway', () => {
     const { gateway } = await setup();
     const validStory: StoryDto = {
       storyPrompt: 'Once upon a time...',
-      photo: 'data:image/png;base64,VALIDBASE64STRING',
+      photo: '//VALIDBASE64STRING//',
     };
     const invalidStory = {
       storyPrompt: 'Once upon a time...',
-      photo: 'INVALIDBASE64STRING',
+      photo: '--INVALIDBASE64STRING--',
     };
 
     const validResult = gateway.handleNewGame(validStory);
@@ -70,7 +70,7 @@ describe('GameSessionGateway', () => {
     const { gateway, mockAppService } = await setup();
     const story: StoryDto = {
       storyPrompt: 'Once upon a time...',
-      photo: 'data:image/png;base64,VALIDBASE64STRING',
+      photo: '//VALIDBASE64STRING//',
     };
 
     gateway.handleNewGame(story);
