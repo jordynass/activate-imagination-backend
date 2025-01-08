@@ -1,5 +1,5 @@
-import { StoryDto } from '../entities/io';
-import { GraphAnnotation } from '../entities/state';
+import { StoryDto } from 'src/lang_graph/entities/io';
+import { GraphAnnotation, type Scene } from 'src/lang_graph/entities/state';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 export async function prepareInputNode(
@@ -11,6 +11,8 @@ export async function prepareInputNode(
   return {
     messages,
     storyPrompt: input.storyPrompt,
+    currentScene: { photo: input.photo },
+    sceneById: new Map<number, Scene>(),
   };
 }
 

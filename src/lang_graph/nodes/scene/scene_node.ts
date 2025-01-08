@@ -8,7 +8,22 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
     storyPrompt: state.storyPrompt,
   });
   messages.push(
-    new HumanMessage('Describe the setting for a new scene in my fantasy.'),
+    new HumanMessage({
+      content: state.currentScene.photo
+        ? [
+            {
+              type: 'text',
+              text: 'Describe this setting as though it were in my fantasy.',
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${state.currentScene.photo}`,
+              },
+            },
+          ]
+        : 'Describe the setting for a new scene in my fantasy.',
+    }),
   );
   const response = await newLlm().invoke(messages);
   return { messages: [response] };
