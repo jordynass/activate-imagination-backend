@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GraphService, TEST_ONLY } from './graph.service';
-import { OutputService } from 'src/output_service/output.service';
+import { OutputService } from 'src/shared/output.service';
 
 jest.mock('@langchain/core/messages', () => ({
   isAIMessageChunk: jest.fn(),

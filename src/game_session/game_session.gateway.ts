@@ -13,7 +13,7 @@ import {
   type SceneDto,
   type StoryDto,
 } from 'src/lang_graph/entities/io';
-import { OutputService } from 'src/output_service/output.service';
+import { OutputService } from 'src/shared/output.service';
 
 @WebSocketGateway()
 export class GameSessionGateway implements OnGatewayConnection {
