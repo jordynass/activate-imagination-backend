@@ -16,6 +16,7 @@ export class AsyncInputService {
       resolve(input);
     } else {
       inputQueue.push(input);
+      this.inputQueueByKey.set(key, inputQueue);
     }
   }
 
@@ -23,14 +24,16 @@ export class AsyncInputService {
     const requestQueue = this.requestQueueByKey.get(key) ?? [];
     const inputQueue = this.inputQueueByKey.get(key) ?? [];
     if (inputQueue.length > 0) {
-      return Promise.resolve(inputQueue.shift());
+      return inputQueue.shift();
     }
     const inputPromise = Promise.withResolvers<string>();
     requestQueue.push(inputPromise);
+    this.requestQueueByKey.set(key, requestQueue);
     return inputPromise.promise;
   }
 }
 
 export enum InputKey {
   'ACTION',
+  'UNKNOWN',
 }
