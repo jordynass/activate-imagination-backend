@@ -1,6 +1,7 @@
 import {
   WebSocketGateway,
   OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   MessageBody,
   ConnectedSocket,
@@ -17,7 +18,9 @@ import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { OutputService } from 'src/shared/output.service';
 
 @WebSocketGateway()
-export class GameSessionGateway implements OnGatewayConnection {
+export class GameSessionGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   constructor(
     private readonly appService: AppService,
     private readonly outputService: OutputService,
@@ -26,7 +29,15 @@ export class GameSessionGateway implements OnGatewayConnection {
 
   handleConnection(@ConnectedSocket() client: Socket) {
     this.outputService.setSocket(client);
-    console.log(`Connected to client: ${client.id}`);
+    console.log(
+      `Connected to client: ${client.id} at ${new Date().toLocaleTimeString()}`,
+    );
+  }
+
+  handleDisconnect(client: any) {
+    console.log(
+      `Disconnected from client: ${client.id} at ${new Date().toLocaleTimeString()}`,
+    );
   }
 
   @SubscribeMessage('newScene')
