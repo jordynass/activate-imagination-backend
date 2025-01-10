@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GraphService, TEST_ONLY } from './graph.service';
 import { OutputService } from 'src/shared/output.service';
+import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
+import { AIMessageChunk, HumanMessage } from '@langchain/core/messages';
+import { Command } from '@langchain/langgraph';
 
-jest.mock('@langchain/core/messages', () => ({
-  isAIMessageChunk: jest.fn(),
-}));
+// jest.mock('@langchain/core/messages', () => ({
+//   isAIMessageChunk: jest.fn(),
+// }));
 
 jest.mock('src/lang_graph/nodes/prepare_input_node', () => ({
   prepareInputNode: jest.fn(),
@@ -13,9 +16,10 @@ jest.mock('src/lang_graph/nodes/prepare_input_node', () => ({
 describe('GraphService', () => {
   async function setup() {
     const mockOutputService = { stream: jest.fn(), endStream: jest.fn() };
-    const mockIsAIMessageChunk = jest.requireMock(
-      '@langchain/core/messages',
-    ).isAIMessageChunk;
+    const mockAsyncInputService = { requestInput: jest.fn() };
+    // const mockIsAIMessageChunk = jest.requireMock(
+    //   '@langchain/core/messages',
+    // ).isAIMessageChunk;
     const mockPrepareInputNode = jest.requireMock(
       'src/lang_graph/nodes/prepare_input_node',
     ).prepareInputNode;
@@ -23,6 +27,7 @@ describe('GraphService', () => {
       providers: [
         GraphService,
         { provide: OutputService, useValue: mockOutputService },
+        { provide: AsyncInputService, useValue: mockAsyncInputService },
       ],
     }).compile();
 
@@ -30,16 +35,16 @@ describe('GraphService', () => {
     const mockGraph = {
       stream: jest.fn().mockReturnValue({
         [Symbol.asyncIterator]: async function* () {
-          yield [{ type: 'ai', content: 'chunk1' }];
-          yield [{ type: 'foo', content: 'bar' }];
-          yield [{ type: 'ai', content: 'chunk2' }];
+          yield [new AIMessageChunk('chunk1')];
+          yield [new HumanMessage('foo')];
+          yield [new AIMessageChunk('chunk2')];
         },
       }),
       getState: jest.fn(),
       getStateHistory: jest.fn(),
     };
     mockGraph.getState.mockReturnValue({ next: null });
-    mockIsAIMessageChunk.mockImplementation((msg) => msg.type === 'ai');
+    // mockIsAIMessageChunk.mockImplementation((msg) => msg.type === 'ai');
     mockPrepareInputNode.mockResolvedValue({});
     jest.spyOn<any, any>(service, 'buildGraph').mockReturnValue(mockGraph);
 
@@ -49,7 +54,8 @@ describe('GraphService', () => {
       mockOutputService,
       mockPrepareInputNode,
       mockGraph,
-      mockIsAIMessageChunk,
+      // mockIsAIMessageChunk,
+      mockAsyncInputService,
     };
   }
 
@@ -108,15 +114,51 @@ describe('GraphService', () => {
 
     it('should stream graph again if state has a next node', async () => {
       const { service, mockOutputService, mockGraph } = await setup();
-      mockGraph.getState.mockReturnValueOnce({ next: 'foo_node' });
-      mockGraph.getState.mockReturnValueOnce({ next: 'bar_node' });
-      mockGraph.getState.mockReturnValue({ next: null });
-      const mockInput = {};
+      mockGraph.getState.mockReturnValueOnce({ next: ['fooNode'] });
+      mockGraph.getState.mockReturnValueOnce({ next: ['barNode'] });
+      mockGraph.getState.mockReturnValue({ next: [] });
 
-      await service.startGame(mockInput);
+      await service.startGame({});
 
       expect(mockGraph.stream).toHaveBeenCalledTimes(3);
       expect(mockOutputService.endStream).toHaveBeenCalledTimes(3);
+    });
+
+    it('should request action input for heroNode', async () => {
+      const { service, mockAsyncInputService, mockGraph } = await setup();
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroNode'] });
+      mockGraph.getState.mockReturnValue({ next: [] });
+      mockAsyncInputService.requestInput.mockReturnValue(
+        'I shall duck behind that little garbage car.',
+      );
+
+      await service.startGame({});
+
+      expect(mockAsyncInputService.requestInput).toHaveBeenCalledWith(
+        InputKey.ACTION,
+      );
+    });
+
+    it('should pass action input to graph stream for heroNode', async () => {
+      const { service, mockAsyncInputService, mockGraph } = await setup();
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroNode'] });
+      mockGraph.getState.mockReturnValue({ next: [] });
+      mockAsyncInputService.requestInput.mockReturnValue(
+        'I shall duck behind that little garbage car.',
+      );
+
+      await service.startGame({});
+
+      expect(
+        mockGraph.stream.mock.calls.some((argList) => {
+          const mainArg = argList[0];
+          return (
+            mainArg instanceof Command &&
+            mainArg.resume.content ===
+              'I shall duck behind that little garbage car.'
+          );
+        }),
+      );
     });
   });
 });

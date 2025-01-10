@@ -4,22 +4,30 @@ import { TEST_ONLY } from './game_session.gateway';
 import { AppService } from 'src/app.service';
 import { OutputService } from 'src/shared/output.service';
 import { SceneDto, StoryDto } from 'src/lang_graph/entities/io';
+import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 
 describe('GameSessionGateway', () => {
   async function setup() {
     const mockAppService = { startGame: jest.fn() };
     const mockOutputService = { setSocket: jest.fn() };
+    const mockAsyncInputService = { sendInput: jest.fn() };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GameSessionGateway,
         { provide: AppService, useValue: mockAppService },
         { provide: OutputService, useValue: mockOutputService },
+        { provide: AsyncInputService, useValue: mockAsyncInputService },
       ],
     }).compile();
 
     const gateway = module.get<GameSessionGateway>(GameSessionGateway);
     jest.clearAllMocks();
-    return { gateway, mockAppService, mockOutputService };
+    return {
+      gateway,
+      mockAppService,
+      mockOutputService,
+      mockAsyncInputService,
+    };
   }
 
   it('should be defined', async () => {
@@ -75,6 +83,17 @@ describe('GameSessionGateway', () => {
 
     gateway.handleNewGame(story);
     expect(mockAppService.startGame).toHaveBeenCalledWith(story);
+  });
+
+  it('should send input on action', async () => {
+    const { gateway, mockAsyncInputService } = await setup();
+    const action = 'I will look under the small rock';
+
+    gateway.handleAction(action);
+    expect(mockAsyncInputService.sendInput).toHaveBeenCalledWith(
+      action,
+      InputKey.ACTION,
+    );
   });
 });
 

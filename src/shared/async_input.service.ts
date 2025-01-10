@@ -34,6 +34,6 @@ export class AsyncInputService {
 }
 
 export enum InputKey {
-  'ACTION',
-  'UNKNOWN',
+  ACTION,
+  UNKNOWN,
 }
