@@ -14,7 +14,8 @@ export const StorySchema = z.object({
   photo: z
     .string()
     .regex(base64Regex, 'Invalid base64 image string')
-    .nullable(),
+    .nullable()
+    .optional(),
 });
 
 export const SceneSchema = z.object({
