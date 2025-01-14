@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphService } from './lang_graph/graph_service/graph.service';
 import { OutputService } from './shared/output.service';
 import { AsyncInputService } from './shared/async_input.service';
+import { ClientService } from './shared/client.service';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AsyncInputService } from './shared/async_input.service';
     GraphService,
     OutputService,
     AsyncInputService,
+    ClientService,
   ],
 })
 export class AppModule {}

@@ -5,10 +5,6 @@ import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { AIMessageChunk, HumanMessage } from '@langchain/core/messages';
 import { Command } from '@langchain/langgraph';
 
-// jest.mock('@langchain/core/messages', () => ({
-//   isAIMessageChunk: jest.fn(),
-// }));
-
 jest.mock('src/lang_graph/nodes/prepare_input_node', () => ({
   prepareInputNode: jest.fn(),
 }));
@@ -17,9 +13,6 @@ describe('GraphService', () => {
   async function setup() {
     const mockOutputService = { stream: jest.fn(), endStream: jest.fn() };
     const mockAsyncInputService = { requestInput: jest.fn() };
-    // const mockIsAIMessageChunk = jest.requireMock(
-    //   '@langchain/core/messages',
-    // ).isAIMessageChunk;
     const mockPrepareInputNode = jest.requireMock(
       'src/lang_graph/nodes/prepare_input_node',
     ).prepareInputNode;
@@ -44,7 +37,6 @@ describe('GraphService', () => {
       getStateHistory: jest.fn(),
     };
     mockGraph.getState.mockReturnValue({ next: null });
-    // mockIsAIMessageChunk.mockImplementation((msg) => msg.type === 'ai');
     mockPrepareInputNode.mockResolvedValue({});
     jest.spyOn<any, any>(service, 'buildGraph').mockReturnValue(mockGraph);
 
@@ -54,7 +46,6 @@ describe('GraphService', () => {
       mockOutputService,
       mockPrepareInputNode,
       mockGraph,
-      // mockIsAIMessageChunk,
       mockAsyncInputService,
     };
   }
@@ -74,7 +65,7 @@ describe('GraphService', () => {
       expect(mockPrepareInputNode).toHaveBeenCalledWith(mockInput);
     });
 
-    it('should store configs', async () => {
+    it('should track multiple configs', async () => {
       const { service } = await setup();
       const mockInput = {};
 
@@ -84,14 +75,45 @@ describe('GraphService', () => {
       expect(service['configs']).toHaveLength(2);
     });
 
-    it('should send ai messages to outputService', async () => {
-      const { service, mockOutputService } = await setup();
-      const mockInput = {};
+    it('should use gameId for config', async () => {
+      const { service } = await setup();
+      const mockInput = { gameId: 'game123' };
 
       await service.startGame(mockInput);
 
-      expect(mockOutputService.stream).toHaveBeenCalledWith('chunk1');
-      expect(mockOutputService.stream).toHaveBeenCalledWith('chunk2');
+      expect(service['configs'][0].configurable.thread_id).toBe('game123');
+    });
+
+    it('should send ai messages to outputService', async () => {
+      const { service, mockOutputService } = await setup();
+      const mockInput = { gameId: 'game123' };
+
+      await service.startGame(mockInput);
+
+      expect(mockOutputService.stream).toHaveBeenCalledWith(
+        'chunk1',
+        expect.any(String),
+      );
+      expect(mockOutputService.stream).toHaveBeenCalledWith(
+        'chunk2',
+        expect.any(String),
+      );
+    });
+
+    it('should pass gameId to outputService', async () => {
+      const { service, mockOutputService } = await setup();
+      const mockInput = { gameId: 'game123' };
+
+      await service.startGame(mockInput);
+
+      expect(mockOutputService.stream).toHaveBeenCalledWith(
+        'chunk1',
+        'game123',
+      );
+      expect(mockOutputService.stream).toHaveBeenCalledWith(
+        'chunk2',
+        'game123',
+      );
     });
 
     it('should only send ai messages to outputService', async () => {
@@ -100,7 +122,7 @@ describe('GraphService', () => {
 
       await service.startGame(mockInput);
 
-      expect(mockOutputService.stream).not.toHaveBeenCalledWith('bar');
+      expect(mockOutputService.stream).not.toHaveBeenCalledWith('foo');
     });
 
     it('should end stream after all messages', async () => {
@@ -132,10 +154,11 @@ describe('GraphService', () => {
         'I shall duck behind that little garbage car.',
       );
 
-      await service.startGame({});
+      await service.startGame({ gameId: 'game123' });
 
       expect(mockAsyncInputService.requestInput).toHaveBeenCalledWith(
         InputKey.ACTION,
+        expect.any(String),
       );
     });
 
@@ -166,9 +189,9 @@ describe('GraphService', () => {
 describe('toConfig helper', () => {
   it('should return correct config', () => {
     const { toConfig } = TEST_ONLY;
-    const result = toConfig(42);
+    const result = toConfig('game123');
     expect(result).toEqual({
-      configurable: { thread_id: '42' },
+      configurable: { thread_id: 'game123' },
       streamMode: 'messages',
     });
   });

@@ -1,37 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { ActionDto } from 'src/lang_graph/entities/io';
 
 @Injectable()
 export class AsyncInputService {
-  private inputQueueByKey = new Map<InputKey, string[]>();
-  private requestQueueByKey = new Map<
-    InputKey,
-    PromiseWithResolvers<string>[]
-  >();
+  private inputQueueMap = new Map<string, string[]>();
+  private requestQueueMap = new Map<string, PromiseWithResolvers<string>[]>();
 
-  sendInput(input: string, key: InputKey) {
-    const requestQueue = this.requestQueueByKey.get(key) ?? [];
-    const inputQueue = this.inputQueueByKey.get(key) ?? [];
+  sendInput({ text, gameId }: ActionDto, key: InputKey) {
+    const requestQueue = this.requestQueueMap.get(toMapKey(key, gameId)) ?? [];
+    const inputQueue = this.inputQueueMap.get(toMapKey(key, gameId)) ?? [];
     if (requestQueue.length > 0) {
       const { resolve } = requestQueue.shift();
-      resolve(input);
+      resolve(text);
     } else {
-      inputQueue.push(input);
-      this.inputQueueByKey.set(key, inputQueue);
+      inputQueue.push(text);
+      this.inputQueueMap.set(toMapKey(key, gameId), inputQueue);
     }
   }
 
-  async requestInput(key: InputKey): Promise<string> {
-    const requestQueue = this.requestQueueByKey.get(key) ?? [];
-    const inputQueue = this.inputQueueByKey.get(key) ?? [];
+  async requestInput(key: InputKey, gameId: string): Promise<string> {
+    const requestQueue = this.requestQueueMap.get(toMapKey(key, gameId)) ?? [];
+    const inputQueue = this.inputQueueMap.get(toMapKey(key, gameId)) ?? [];
     if (inputQueue.length > 0) {
       return inputQueue.shift();
     }
     const inputPromise = Promise.withResolvers<string>();
     requestQueue.push(inputPromise);
-    this.requestQueueByKey.set(key, requestQueue);
+    this.requestQueueMap.set(toMapKey(key, gameId), requestQueue);
     return inputPromise.promise;
   }
 }
+
+const toMapKey = (key: InputKey, gameId: string) =>
+  JSON.stringify({ key, gameId });
 
 export enum InputKey {
   ACTION,

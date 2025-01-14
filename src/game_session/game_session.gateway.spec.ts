@@ -78,31 +78,21 @@ describe('GameSessionGateway', () => {
     expect(mockClientService.setClient).toHaveBeenCalledWith('game123', socket);
   });
 
-  it('should set socket on handleConnection', async () => {
-    const { gateway, mockOutputService } = await setup();
-    const socket = {
-      id: 'socket123',
-      handshake: {
-        headers: {
-          'x-game-id': 'game123',
-        },
-      },
-    } as any;
-    gateway.handleConnection(socket);
-    expect(mockOutputService.setSocket).toHaveBeenCalledWith(socket);
-  });
-
   it('should validate and handle new scene correctly', async () => {
     const { gateway } = await setup();
     const validScene: SceneDto = {
       photo: '//VALIDBASE64STRING//',
+      gameId: 'game123',
     };
-    const invalidScene = { photo: '--INVALIDBASE64STRING--' };
+    const invalidScene = {
+      photo: '--INVALIDBASE64STRING--',
+      gameId: 'game123',
+    };
 
     const validResult = gateway.handleNewScene(validScene);
     expect(validResult).toBe('New scene');
 
-    const invalidResult = gateway.handleNewScene(invalidScene as any);
+    const invalidResult = gateway.handleNewScene(invalidScene);
     expect(invalidResult).toContain('Invalid scene data');
   });
 
@@ -111,10 +101,12 @@ describe('GameSessionGateway', () => {
     const validStory: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: '//VALIDBASE64STRING//',
+      gameId: 'game123',
     };
     const invalidStory = {
       storyPrompt: 'Once upon a time...',
       photo: '--INVALIDBASE64STRING--',
+      gameId: 'game123',
     };
 
     const validResult = gateway.handleNewGame(validStory);
@@ -129,6 +121,7 @@ describe('GameSessionGateway', () => {
     const story: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: '//VALIDBASE64STRING//',
+      gameId: 'game123',
     };
 
     gateway.handleNewGame(story);
@@ -137,7 +130,10 @@ describe('GameSessionGateway', () => {
 
   it('should send input on action', async () => {
     const { gateway, mockAsyncInputService } = await setup();
-    const action = 'I will look under the small rock';
+    const action = {
+      text: 'I will look under the small rock',
+      gameId: 'game123',
+    };
 
     gateway.handleAction(action);
     expect(mockAsyncInputService.sendInput).toHaveBeenCalledWith(

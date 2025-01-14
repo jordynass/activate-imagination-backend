@@ -23,8 +23,7 @@ export class GraphService {
 
   async startGame(input: StoryDto) {
     this.graph = this.graph ?? this.buildGraph();
-    const configId = this.configs.length;
-    const config = toConfig(configId);
+    const config = toConfig(input.gameId);
     this.configs.push(config);
 
     let nextState: Command | typeof GraphAnnotation.State =
@@ -34,6 +33,7 @@ export class GraphService {
       if (nextNodeList.includes('heroNode')) {
         const action = await this.asyncInputService.requestInput(
           InputKey.ACTION,
+          input.gameId,
         );
         const actionMessage = new HumanMessage(action, {
           inputKey: InputKey.ACTION,
@@ -43,11 +43,11 @@ export class GraphService {
       const stream = await this.graph.stream(nextState, config);
       for await (const [msg] of stream) {
         if (isAIMessageChunk(msg) && typeof msg.content === 'string') {
-          this.outputService.stream(msg.content);
+          this.outputService.stream(msg.content, input.gameId);
         }
       }
-      this.outputService.endStream();
-      nextNodeList = (await this.getState(configId)).next;
+      this.outputService.endStream(input.gameId);
+      nextNodeList = (await this.getState(input.gameId)).next;
     } while (nextNodeList?.length);
   }
 
@@ -64,18 +64,18 @@ export class GraphService {
       .compile({ checkpointer: this.memory });
   }
 
-  async getState(threadId: number) {
-    return await this.graph.getState(toConfig(threadId));
+  async getState(gameId: string) {
+    return await this.graph.getState(toConfig(gameId));
   }
 
-  async getStateHistory(threadId: number) {
-    return await this.graph.getStateHistory(toConfig(threadId));
+  async getStateHistory(gameId: string) {
+    return await this.graph.getStateHistory(toConfig(gameId));
   }
 }
 
-function toConfig(threadId: number) {
+function toConfig(gameId: string) {
   return {
-    configurable: { thread_id: String(threadId) },
+    configurable: { thread_id: gameId },
     streamMode: 'messages',
   };
 }

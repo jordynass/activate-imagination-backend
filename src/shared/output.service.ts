@@ -1,36 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { ClientService } from './client.service';
 
+// TODO: ADJUST TESTS
+// TODO: MANUALLY TEST
 @Injectable()
 export class OutputService {
-  private chunks: string[] = [];
-  private socket: Socket | null = null;
+  private chunksByGameId = new Map<string, string[]>();
 
-  setSocket(socket: Socket) {
-    this.socket = socket;
-  }
+  constructor(private clientService: ClientService) {}
 
-  stream(chunk: string) {
-    if (!this.socket) {
-      console.error(
-        `Socket has not been set yet so OutputService cannot stream`,
-      );
+  stream(chunk: string, gameId: string) {
+    const client = this.clientService.getClient(gameId);
+    if (!client) {
+      console.error(`There is no running game with ID ${gameId} `);
       return;
     }
-    this.socket.emit('output', {
+    const chunks = this.chunksByGameId.get(gameId) ?? [];
+    client.emit('output', {
       content: chunk,
-      order: this.chunks.length,
+      order: chunks.length,
     });
-    this.chunks.push(chunk);
+    chunks.push(chunk);
+    this.chunksByGameId.set(gameId, chunks);
   }
 
-  endStream(): string {
-    if (this.chunks.length > 0) {
-      console.log(`Ending stream of ${this.chunks.length} chunks`);
+  endStream(gameId: string): string {
+    const chunks = this.chunksByGameId.get(gameId) ?? [];
+    if (chunks.length > 0) {
+      console.log(`Ending stream of ${chunks.length} chunks`);
     }
-    this.socket?.emit('endOutput', this.chunks.length);
-    const output = this.chunks.join('');
-    this.chunks = [];
+    this.clientService.getClient(gameId)?.emit('endOutput', chunks.length);
+    const output = chunks.join('');
+    this.chunksByGameId.set(gameId, []);
     return output;
   }
 }

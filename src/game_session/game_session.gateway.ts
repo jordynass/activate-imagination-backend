@@ -10,6 +10,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AppService } from 'src/app.service';
 import {
+  ActionDto,
   SceneSchema,
   StorySchema,
   type SceneDto,
@@ -38,7 +39,6 @@ export class GameSessionGateway
       throw new BadRequestException(gameId, errorMsg);
     }
     this.clientService.setClient(gameId, client);
-    this.outputService.setSocket(client);
     console.log(
       `Connected to client: ${client.id} at ${new Date().toLocaleTimeString()}`,
     );
@@ -86,7 +86,7 @@ export class GameSessionGateway
   }
 
   @SubscribeMessage('action')
-  handleAction(@MessageBody() data: string) {
+  handleAction(@MessageBody() data: ActionDto) {
     this.asyncInputService.sendInput(data, InputKey.ACTION);
   }
 }
