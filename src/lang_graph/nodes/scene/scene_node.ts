@@ -25,6 +25,14 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
         : 'Describe the setting for a new scene in my fantasy.',
     }),
   );
+  // UNCOMMENT TO FAKE LLM CALL:
+  // return {
+  //   messages: [
+  //     new AIMessage('fake '),
+  //     new AIMessage('scene '),
+  //     new AIMessage('generation'),
+  //   ],
+  // };
   const response = await newLlm().invoke(messages);
   return { messages: [response] };
 }

@@ -18,7 +18,6 @@ import {
 } from 'src/lang_graph/entities/io';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ClientService } from 'src/shared/client.service';
-import { OutputService } from 'src/shared/output.service';
 
 @WebSocketGateway()
 export class GameSessionGateway
@@ -26,7 +25,6 @@ export class GameSessionGateway
 {
   constructor(
     private readonly appService: AppService,
-    private readonly outputService: OutputService,
     private readonly asyncInputService: AsyncInputService,
     private readonly clientService: ClientService,
   ) {}
@@ -40,7 +38,7 @@ export class GameSessionGateway
     }
     this.clientService.setClient(gameId, client);
     console.log(
-      `Connected to client: ${client.id} at ${new Date().toLocaleTimeString()}`,
+      `Connected to client: ${client.id} at with Game ID ${gameId} ${new Date().toLocaleTimeString()}`,
     );
   }
 
