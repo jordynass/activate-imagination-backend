@@ -28,12 +28,12 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
   // UNCOMMENT TO FAKE LLM CALL:
   // return {
   //   messages: [
-  //     new AIMessage('fake '),
-  //     new AIMessage('scene '),
-  //     new AIMessage('generation'),
+  //     new AIMessageChunk('fake '),
+  //     new AIMessageChunk('scene '),
+  //     new AIMessageChunk('generation'),
   //   ],
   // };
-  const response = await newLlm().invoke(messages);
+  const response = await newLlm().invoke('write a haiku');
   return { messages: [response] };
 }
 
