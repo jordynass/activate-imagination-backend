@@ -33,7 +33,7 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
   //     new AIMessageChunk('generation'),
   //   ],
   // };
-  const response = await newLlm().invoke('write a haiku');
+  const response = await newLlm().invoke(messages);
   return { messages: [response] };
 }
 
