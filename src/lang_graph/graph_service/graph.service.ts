@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { StateGraph, START, MemorySaver, Command } from '@langchain/langgraph';
 import { GraphAnnotation } from 'src/lang_graph/entities/state';
 import { StoryDto } from 'src/lang_graph/entities/io';
-import { sceneNode } from 'src/lang_graph/nodes/scene/scene_node';
+import { sceneNode } from 'src/lang_graph/nodes/scene_node';
 import { prepareInputNode } from 'src/lang_graph/nodes/prepare_input_node';
 import { OutputService } from 'src/shared/output.service';
 import { HumanMessage, isAIMessageChunk } from '@langchain/core/messages';

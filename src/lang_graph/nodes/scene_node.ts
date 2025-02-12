@@ -1,7 +1,8 @@
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { GraphAnnotation } from '../../entities/state';
+import { GraphAnnotation } from '../entities/state';
 import { newLlm } from 'src/lang_graph/llm';
 import { HumanMessage } from '@langchain/core/messages';
+// import { AIMessageChunk } from '@langchain/core/messages';
 
 export async function sceneNode(state: typeof GraphAnnotation.State) {
   const { messages } = await promptTemplate.invoke({
