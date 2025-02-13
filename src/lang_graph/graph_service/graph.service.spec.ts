@@ -21,6 +21,8 @@ describe('GraphService', () => {
         GraphService,
         { provide: OutputService, useValue: mockOutputService },
         { provide: AsyncInputService, useValue: mockAsyncInputService },
+        { provide: 'TOOLS', useValue: [] },
+        { provide: 'GAME_MASTER_NODE', useValue: jest.fn() },
       ],
     }).compile();
 

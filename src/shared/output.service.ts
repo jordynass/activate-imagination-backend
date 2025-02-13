@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ClientService } from './client.service';
 
-// TODO: ADJUST TESTS
-// TODO: MANUALLY TEST
 @Injectable()
 export class OutputService {
   private chunksByGameId = new Map<string, string[]>();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   StateGraph,
   START,
@@ -13,10 +13,8 @@ import { prepareInputNode } from 'src/lang_graph/nodes/prepare_input_node';
 import { OutputService } from 'src/shared/output.service';
 import { HumanMessage, isAIMessageChunk } from '@langchain/core/messages';
 import { heroNode } from '../nodes/hero_node';
-import { gameMasterNode } from '../nodes/game_master_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
-import tools from '../nodes/tools';
 
 @Injectable()
 export class GraphService {
@@ -27,6 +25,8 @@ export class GraphService {
   constructor(
     private readonly outputService: OutputService,
     private readonly asyncInputService: AsyncInputService,
+    @Inject('GAME_MASTER_NODE') private readonly gameMasterNode,
+    @Inject('TOOLS') private readonly tools,
   ) {}
 
   async startGame(input: StoryDto) {
@@ -65,10 +65,10 @@ export class GraphService {
     return graphBuilder
       .addNode('sceneNode', sceneNode)
       .addNode('heroNode', heroNode)
-      .addNode('gameMasterNode', gameMasterNode, {
+      .addNode('gameMasterNode', this.gameMasterNode, {
         ends: ['toolNode', 'heroNode', END],
       })
-      .addNode('toolNode', new ToolNode(tools))
+      .addNode('toolNode', new ToolNode(this.tools))
       .addEdge(START, 'sceneNode')
       .addEdge('sceneNode', 'heroNode')
       .addEdge('heroNode', 'gameMasterNode')
