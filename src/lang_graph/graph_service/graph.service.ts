@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { StateGraph, START, MemorySaver, Command } from '@langchain/langgraph';
+import {
+  StateGraph,
+  START,
+  MemorySaver,
+  Command,
+  END,
+} from '@langchain/langgraph';
 import { GraphAnnotation } from 'src/lang_graph/entities/state';
 import { StoryDto } from 'src/lang_graph/entities/io';
 import { sceneNode } from 'src/lang_graph/nodes/scene_node';
@@ -9,6 +15,8 @@ import { HumanMessage, isAIMessageChunk } from '@langchain/core/messages';
 import { heroNode } from '../nodes/hero_node';
 import { gameMasterNode } from '../nodes/game_master_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
+import { ToolNode } from '@langchain/langgraph/prebuilt';
+import tools from '../nodes/tools';
 
 @Injectable()
 export class GraphService {
@@ -57,7 +65,10 @@ export class GraphService {
     return graphBuilder
       .addNode('sceneNode', sceneNode)
       .addNode('heroNode', heroNode)
-      .addNode('gameMasterNode', gameMasterNode)
+      .addNode('gameMasterNode', gameMasterNode, {
+        ends: ['toolNode', 'heroNode', END],
+      })
+      .addNode('toolNode', new ToolNode(tools))
       .addEdge(START, 'sceneNode')
       .addEdge('sceneNode', 'heroNode')
       .addEdge('heroNode', 'gameMasterNode')
