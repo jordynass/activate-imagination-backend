@@ -17,6 +17,7 @@ type SceneMonitor = {
 };
 
 export const GraphAnnotation = Annotation.Root({
+  gameId: Annotation<string>,
   messages: Annotation<BaseMessage[]>({
     reducer: messagesStateReducer,
     default: () => [],

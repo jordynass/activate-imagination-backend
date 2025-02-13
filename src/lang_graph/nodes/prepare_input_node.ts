@@ -9,6 +9,7 @@ export async function prepareInputNode(
     storyPrompt: input.storyPrompt,
   });
   return {
+    gameId: input.gameId,
     messages,
     storyPrompt: input.storyPrompt,
     currentScene: { photo: input.photo },
