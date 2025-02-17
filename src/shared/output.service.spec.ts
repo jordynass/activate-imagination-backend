@@ -144,4 +144,22 @@ describe('OutputService', () => {
       expect(result2).toBe('chunk3chunk4');
     });
   });
+
+  describe('sendEvent', () => {
+    it('should emit the event to the correct client and not to the wrong client', async () => {
+      const { service, mockSocket1, mockSocket2, mockClientService } =
+        await setup();
+      const gameId = 'game123';
+      const outputEvent = { type: 'testEvent', payload: { data: 'testData' } };
+
+      service.sendEvent(outputEvent, gameId);
+
+      expect(mockClientService.getClient).toHaveBeenCalledWith(gameId);
+      expect(mockSocket1.emit).toHaveBeenCalledWith(
+        outputEvent.type,
+        outputEvent.payload,
+      );
+      expect(mockSocket2.emit).not.toHaveBeenCalled();
+    });
+  });
 });

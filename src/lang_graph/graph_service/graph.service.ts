@@ -11,7 +11,12 @@ import { StoryDto } from 'src/lang_graph/entities/io';
 import { sceneNode } from 'src/lang_graph/nodes/scene_node';
 import { prepareInputNode } from 'src/lang_graph/nodes/prepare_input_node';
 import { OutputService } from 'src/shared/output.service';
-import { HumanMessage, isAIMessageChunk } from '@langchain/core/messages';
+import {
+  AIMessageChunk,
+  HumanMessage,
+  isAIMessageChunk,
+  MessageContentComplex,
+} from '@langchain/core/messages';
 import { heroNode } from '../nodes/hero_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
@@ -50,12 +55,13 @@ export class GraphService {
       }
       const stream = await this.graph.stream(nextState, config);
       for await (const [msg] of stream) {
-        if (isAIMessageChunk(msg) && typeof msg.content === 'string') {
-          this.outputService.stream(msg.content, input.gameId);
+        if (isAIMessageChunk(msg)) {
+          this.outputService.stream(getAIMessageChunkText(msg), input.gameId);
         }
       }
       this.outputService.endStream(input.gameId);
-      nextNodeList = (await this.getState(input.gameId)).next;
+      const state = await this.getState(input.gameId);
+      nextNodeList = state.next;
     } while (nextNodeList?.length);
   }
 
@@ -91,4 +97,13 @@ function toConfig(gameId: string) {
   };
 }
 
-export const TEST_ONLY = { toConfig };
+function getAIMessageChunkText(chunk: AIMessageChunk): string {
+  if (typeof chunk.content === 'string') {
+    return chunk.content;
+  }
+  const complexContentList: MessageContentComplex[] = chunk.content;
+  const allText = complexContentList.map((mcc) => (mcc as any).text ?? '');
+  return allText.join();
+}
+
+export const TEST_ONLY = { toConfig, getAIMessageChunkText };

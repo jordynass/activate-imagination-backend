@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ClientService } from './client.service';
+import { OutputEvent } from 'src/lang_graph/entities/output_events';
 
 @Injectable()
 export class OutputService {
@@ -31,5 +32,17 @@ export class OutputService {
     const output = chunks.join('');
     this.chunksByGameId.set(gameId, []);
     return output;
+  }
+
+  sendEvent<Payload, OE extends OutputEvent<Payload>>(
+    outputEvent: OE,
+    gameId: string,
+  ) {
+    const client = this.clientService.getClient(gameId);
+    if (!client) {
+      console.error(`There is no running game with ID ${gameId} `);
+      return;
+    }
+    client.emit(outputEvent.type, outputEvent.payload);
   }
 }
