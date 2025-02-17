@@ -25,6 +25,6 @@ fantasy adventure by narrating it for me:\
 \n<Story Prompt>{storyPrompt}</Story Prompt>\n \
 Each time I request to start a new scene, you will describe the scene for me and ask me \
 what I want to do. Then you will chat with me as I interact with any objects or characters \
-in the scene.',
+in the scene. After scene exposition, cap each response at 200 words.',
   ],
 ]);

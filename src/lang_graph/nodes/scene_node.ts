@@ -59,7 +59,7 @@ I can interact. You should include the character\'s name and a parenthetical \
 physical description of one to two sentences. For example, if the adventure is \
 pirate themed, the description could include "In front of the ship\'s great \
 helm (analog clock) stands Captain Bucky (An experienced and sailor in his 50s \
-whose tough wrinkled skin tell of a tough life at sea). Once you have explained \
-the scene, ask me what I want to do."',
+whose tough wrinkled skin tell of a tough life at sea). Cap your entire response \
+at 250 words. Once you have explained the scene, ask me what I want to do."',
   ],
 ]);
