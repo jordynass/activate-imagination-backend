@@ -55,6 +55,8 @@ export class GameSessionGateway
       'Received valid scene data:',
       stringifyWithTruncation(sceneData),
     );
+
+    this.asyncInputService.sendInput(sceneData, InputKey.NEW_SCENE);
     return 'New scene';
   }
 

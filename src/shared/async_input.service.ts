@@ -36,5 +36,6 @@ const toMapKey = (key: InputKey, gameId: string) =>
 
 export enum InputKey {
   ACTION,
+  NEW_SCENE,
   UNKNOWN,
 }
