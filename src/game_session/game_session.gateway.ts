@@ -6,7 +6,6 @@ import {
   MessageBody,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { BadRequestException } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AppService } from 'src/app.service';
 import {
@@ -31,15 +30,8 @@ export class GameSessionGateway
   ) {}
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    const gameId = client.handshake.headers['x-game-id'];
-    if (typeof gameId !== 'string') {
-      const errorMsg = `Invalid x-game-id header: ${JSON.stringify(gameId)}.\nShould be a string`;
-      client.emit('error', errorMsg);
-      throw new BadRequestException(gameId, errorMsg);
-    }
-    this.clientService.setClient(gameId, client);
     console.log(
-      `Connected to client: ${client.id} at with Game ID ${gameId} ${new Date().toLocaleTimeString()}`,
+      `Connected to client: ${client.id} at ${new Date().toLocaleTimeString()}`,
     );
   }
 
@@ -67,7 +59,10 @@ export class GameSessionGateway
   }
 
   @SubscribeMessage('newGame')
-  handleNewGame(@MessageBody() data: StoryDto): string {
+  handleNewGame(
+    @MessageBody() data: StoryDto,
+    @ConnectedSocket() client: Socket,
+  ): string {
     const validation = StorySchema.safeParse(data);
     if (!validation.success) {
       console.error('New Game Validation failed:', validation.error.errors);
@@ -75,8 +70,10 @@ export class GameSessionGateway
     }
 
     const storyData: StoryDto = validation.data;
+    this.clientService.setClient(storyData.gameId, client);
     console.log(
-      'Received valid story data:',
+      `Starting Game ${storyData.gameId} with client ${client.id} at ${new Date().toLocaleTimeString()}`,
+      `Story data:`,
       stringifyWithTruncation(storyData),
     );
 

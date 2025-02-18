@@ -39,54 +39,15 @@ describe('GameSessionGateway', () => {
     expect(gateway).toBeDefined();
   });
 
-  it('should validate x-game-id header', async () => {
-    const { gateway } = await setup();
-    const socket = {
-      handshake: {
-        headers: {
-          'x-game-id': ['a', 'b'],
-        },
-      },
-      emit: jest.fn(),
-      disconnect: jest.fn(),
-    } as any;
-
-    try {
-      gateway.handleConnection(socket);
-      fail('The bad header x-game-id should have caused an error');
-    } catch (error) {
-      expect(error.getStatus()).toBe(400);
-    }
-
-    expect(socket.emit).toHaveBeenCalledWith('error', expect.any(String));
-  });
-
-  it('should set client based on x-game-id header', async () => {
-    const { gateway, mockClientService } = await setup();
-    const socket = {
-      id: 'socket123',
-      handshake: {
-        headers: {
-          'x-game-id': 'game123',
-        },
-      },
-    } as any;
-
-    gateway.handleConnection(socket);
-
-    // Assert that setClient was called with the correct gameId and socket
-    expect(mockClientService.setClient).toHaveBeenCalledWith('game123', socket);
-  });
-
   it('should validate and handle new scene correctly', async () => {
     const { gateway } = await setup();
     const validScene: SceneDto = {
       photo: '//VALIDBASE64STRING//',
-      gameId: 'game123',
+      gameId: 'valid-game',
     };
     const invalidScene = {
       photo: '--INVALIDBASE64STRING--',
-      gameId: 'game123',
+      gameId: 'invalid-game',
     };
 
     const validResult = gateway.handleNewScene(validScene);
@@ -101,19 +62,45 @@ describe('GameSessionGateway', () => {
     const validStory: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: '//VALIDBASE64STRING//',
-      gameId: 'game123',
+      gameId: 'valid-game',
     };
-    const invalidStory = {
+    const invalidStory: StoryDto = {
       storyPrompt: 'Once upon a time...',
       photo: '--INVALIDBASE64STRING--',
-      gameId: 'game123',
+      gameId: 'invalid-game',
     };
+    const client = { id: 'client123' } as any;
 
-    const validResult = gateway.handleNewGame(validStory);
+    const validResult = gateway.handleNewGame(validStory, client);
     expect(validResult).toBe('New game');
 
-    const invalidResult = gateway.handleNewGame(invalidStory as any);
+    const invalidResult = gateway.handleNewGame(invalidStory, client);
     expect(invalidResult).toContain('Invalid story data');
+  });
+
+  it('should set client if and only if a valid story prompt is passed', async () => {
+    const { gateway, mockClientService } = await setup();
+    const validStory: StoryDto = {
+      storyPrompt: 'Once upon a time...',
+      photo: '//VALIDBASE64STRING//',
+      gameId: 'valid-game',
+    };
+    const invalidStory: StoryDto = {
+      storyPrompt: 'Once upon a time...',
+      photo: '--INVALIDBASE64STRING--',
+      gameId: 'invalid-game',
+    };
+    const client1 = { id: 'client123' } as any;
+    const client2 = { id: 'client456' } as any;
+
+    gateway.handleNewGame(invalidStory, client2);
+    gateway.handleNewGame(validStory, client1);
+
+    expect(mockClientService.setClient).toHaveBeenCalledTimes(1);
+    expect(mockClientService.setClient).toHaveBeenCalledWith(
+      'valid-game',
+      client1,
+    );
   });
 
   it('should call startGame on new game', async () => {
@@ -123,8 +110,9 @@ describe('GameSessionGateway', () => {
       photo: '//VALIDBASE64STRING//',
       gameId: 'game123',
     };
+    const client = { id: 'client123' } as any;
 
-    gateway.handleNewGame(story);
+    gateway.handleNewGame(story, client);
     expect(mockAppService.startGame).toHaveBeenCalledWith(story);
   });
 
