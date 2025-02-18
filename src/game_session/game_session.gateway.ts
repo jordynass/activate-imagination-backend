@@ -11,6 +11,7 @@ import { Socket } from 'socket.io';
 import { AppService } from 'src/app.service';
 import {
   ActionDto,
+  ActionSchema,
   SceneSchema,
   StorySchema,
   type SceneDto,
@@ -85,7 +86,16 @@ export class GameSessionGateway
 
   @SubscribeMessage('action')
   handleAction(@MessageBody() data: ActionDto) {
-    this.asyncInputService.sendInput(data, InputKey.ACTION);
+    const validation = ActionSchema.safeParse(data);
+    if (!validation.success) {
+      console.error('Action Validation failed:', validation.error.errors);
+      return `Invalid action data: ${validation.error.errors.map((e) => e.message).join('\n')}`;
+    }
+
+    const actionData: ActionDto = validation.data;
+
+    this.asyncInputService.sendInput(actionData, InputKey.ACTION);
+    return 'Action';
   }
 }
 
