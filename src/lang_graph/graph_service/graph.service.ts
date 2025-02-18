@@ -103,7 +103,7 @@ function getAIMessageChunkText(chunk: AIMessageChunk): string {
   }
   const complexContentList: MessageContentComplex[] = chunk.content;
   const allText = complexContentList.map((mcc) => (mcc as any).text ?? '');
-  return allText.join();
+  return allText.join('');
 }
 
 export const TEST_ONLY = { toConfig, getAIMessageChunkText };
