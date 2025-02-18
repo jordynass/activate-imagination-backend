@@ -5,8 +5,8 @@ export const CharacterSchema = z.object({
   name: z.string().describe('The name most commonly used for the character'),
   current: z.string().describe(
     'A one or two sentence description of the character\'s current situation. If they are interacting \
-    with another character or item, refer to as XML tags, e.g. <Character id="5">Bob</Character> or \
-    <Item id="3">the sword</Item>.',
+with another character or item, refer to as XML tags, e.g. <Character id="5">Bob</Character> or \
+<Item id="3">the sword</Item>.',
   ),
   physical: z
     .string()
@@ -39,7 +39,7 @@ in the scene or small items that somebody could easily take.',
 export const SceneSchema = z.object({
   items: z.array(ItemSchema).describe(
     'A list of items in the scene. These should be objects in the real world that have \
-    a corresponding object in the fantasy world',
+a corresponding object in the fantasy world',
   ),
   characters: z
     .array(CharacterSchema)
