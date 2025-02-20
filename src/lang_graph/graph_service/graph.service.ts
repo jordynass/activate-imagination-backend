@@ -1,11 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  StateGraph,
-  START,
-  MemorySaver,
-  Command,
-  END,
-} from '@langchain/langgraph';
+import { StateGraph, START, MemorySaver, Command } from '@langchain/langgraph';
 import { GraphAnnotation } from 'src/lang_graph/entities/state';
 import { StoryDto } from 'src/lang_graph/entities/io';
 import { sceneNode } from 'src/lang_graph/nodes/scene_node';
@@ -17,7 +11,7 @@ import {
   isAIMessageChunk,
   MessageContentComplex,
 } from '@langchain/core/messages';
-import { heroNode } from '../nodes/hero_node';
+import { heroActionNode } from '../nodes/hero_nodes/hero_action_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 
@@ -43,7 +37,7 @@ export class GraphService {
       await prepareInputNode(input);
     let nextNodeList = [START];
     do {
-      if (nextNodeList.includes('heroNode')) {
+      if (nextNodeList.includes('heroActionNode')) {
         const action = await this.asyncInputService.requestInput(
           InputKey.ACTION,
           input.gameId,
@@ -70,14 +64,14 @@ export class GraphService {
 
     return graphBuilder
       .addNode('sceneNode', sceneNode)
-      .addNode('heroNode', heroNode)
+      .addNode('heroActionNode', heroActionNode)
       .addNode('gameMasterNode', this.gameMasterNode, {
-        ends: ['toolNode', 'heroNode', END],
+        ends: ['toolNode', 'heroActionNode'],
       })
       .addNode('toolNode', new ToolNode(this.tools))
       .addEdge(START, 'sceneNode')
-      .addEdge('sceneNode', 'heroNode')
-      .addEdge('heroNode', 'gameMasterNode')
+      .addEdge('sceneNode', 'heroActionNode')
+      .addEdge('heroActionNode', 'gameMasterNode')
       .compile({ checkpointer: this.memory });
   }
 

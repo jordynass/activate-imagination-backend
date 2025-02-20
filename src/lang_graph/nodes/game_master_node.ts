@@ -26,7 +26,7 @@ export function gameMasterNodeFactory(tools) {
           });
         }
         return new Command({
-          goto: 'heroNode',
+          goto: 'heroActionNode',
           update: { messages: [nextMessage] },
         });
       default:

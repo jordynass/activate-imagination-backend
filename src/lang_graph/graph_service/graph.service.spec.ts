@@ -148,9 +148,9 @@ describe('GraphService', () => {
       expect(mockOutputService.endStream).toHaveBeenCalledTimes(3);
     });
 
-    it('should request action input for heroNode', async () => {
+    it('should request action input for heroActionNode', async () => {
       const { service, mockAsyncInputService, mockGraph } = await setup();
-      mockGraph.getState.mockReturnValueOnce({ next: ['heroNode'] });
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroActionNode'] });
       mockGraph.getState.mockReturnValue({ next: [] });
       mockAsyncInputService.requestInput.mockReturnValue(
         'I shall duck behind that little garbage car.',
