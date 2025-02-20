@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Service for running the LangGraph.
+ * It builds and connects the nodes and passes the streamed message chunks coming into the
+ * graph state to the OutputService.
+ */
+
 import { Inject, Injectable } from '@nestjs/common';
 import { StateGraph, START, MemorySaver, Command } from '@langchain/langgraph';
 import { GraphAnnotation } from 'src/lang_graph/entities/state';

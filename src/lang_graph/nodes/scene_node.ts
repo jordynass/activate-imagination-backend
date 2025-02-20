@@ -1,8 +1,13 @@
+/**
+ * @fileoverview Node for prompting an LLM for a scene description from a story prompt
+ * (i.e. text and photo) when the hero changes setting or starts a new adventure.
+ */
+
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { GraphAnnotation } from '../entities/state';
 import { newLlm } from 'src/lang_graph/llm';
 import { HumanMessage } from '@langchain/core/messages';
-// import { AIMessageChunk } from '@langchain/core/messages';
+import { AIMessageChunk } from '@langchain/core/messages';
 
 export async function sceneNode(state: typeof GraphAnnotation.State) {
   const { messages } = await promptTemplate.invoke({
@@ -27,13 +32,13 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
     }),
   );
   // UNCOMMENT TO FAKE LLM CALL:
-  // return {
-  //   messages: [
-  //     new AIMessageChunk('fake '),
-  //     new AIMessageChunk('scene '),
-  //     new AIMessageChunk('generation'),
-  //   ],
-  // };
+  return {
+    messages: [
+      new AIMessageChunk('fake '),
+      new AIMessageChunk('scene '),
+      new AIMessageChunk('generation'),
+    ],
+  };
   const response = await newLlm().invoke(messages);
   return { messages: [response] };
 }

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Informal node (i.e. called outside the LangGraph framework)
+ * for converting the user's initial story prompt (i.e. text and photo) into an initial
+ * graph state.
+ */
+
 import { StoryDto } from 'src/lang_graph/entities/io';
 import { GraphAnnotation, type Scene } from 'src/lang_graph/entities/state';
 import { ChatPromptTemplate } from '@langchain/core/prompts';

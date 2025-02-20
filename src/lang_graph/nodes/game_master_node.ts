@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Node that serves as the main agent responsible for
+ * coordinating game flow
+ */
+
 import { Command, END } from '@langchain/langgraph';
 import { GraphAnnotation } from '../entities/state';
 import { type BaseMessage } from '@langchain/core/messages';

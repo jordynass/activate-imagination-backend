@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Tool for ending the game at the users request to allow
+ * for semantic quitting.
+ */
+
 import { tool } from '@langchain/core/tools';
 import { END } from '@langchain/langgraph';
 import { ExitEvent } from 'src/lang_graph/entities/output_events';

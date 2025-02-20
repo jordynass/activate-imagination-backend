@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Module providing factories for graph nodes that need to access
+ * injected dependencies.
+ */
+
 import { Module } from '@nestjs/common';
 import { ToolsModule } from './tools/tools.module';
 import { gameMasterNodeFactory } from './game_master_node';
