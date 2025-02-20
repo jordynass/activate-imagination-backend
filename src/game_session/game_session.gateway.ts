@@ -74,8 +74,8 @@ export class GameSessionGateway
     const storyData: StoryDto = validation.data;
     this.clientService.setClient(storyData.gameId, client);
     console.log(
-      `Starting Game ${storyData.gameId} with client ${client.id} at ${new Date().toLocaleTimeString()}`,
-      `Story data:`,
+      `Starting Game ${storyData.gameId} with client ${client.id} at ${new Date().toLocaleTimeString()}\n\n`,
+      `Story data:\n`,
       stringifyWithTruncation(storyData),
     );
 
