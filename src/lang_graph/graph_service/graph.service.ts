@@ -59,7 +59,7 @@ export class GraphService {
           this.outputService.stream(getAIMessageChunkText(msg), input.gameId);
         }
       }
-      this.outputService.endStream(input.gameId);
+      this.outputService.endStream(input.gameId, InputKey.ACTION);
       const state = await this.getState(input.gameId);
       nextNodeList = state.next;
     } while (nextNodeList?.length);

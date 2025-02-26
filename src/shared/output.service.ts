@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { OutputEvent } from 'src/lang_graph/entities/output_events';
+import { InputKey } from './async_input.service';
 
 @Injectable()
 export class OutputService {
@@ -23,12 +24,15 @@ export class OutputService {
     this.chunksByGameId.set(gameId, chunks);
   }
 
-  endStream(gameId: string): string {
+  endStream(gameId: string, responseKey: InputKey): string {
     const chunks = this.chunksByGameId.get(gameId) ?? [];
     if (chunks.length > 0) {
       console.log(`Ending stream of ${chunks.length} chunks`);
     }
-    this.clientService.getClient(gameId)?.emit('endOutput', chunks.length);
+    this.clientService.getClient(gameId)?.emit('endOutput', {
+      length: chunks.length,
+      responseKey,
+    });
     const output = chunks.join('');
     this.chunksByGameId.set(gameId, []);
     return output;

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OutputService } from './output.service';
 import { ClientService } from './client.service';
 import { Socket } from 'socket.io';
+import { InputKey } from './async_input.service';
 
 describe('OutputService', () => {
   async function setup() {
@@ -93,14 +94,17 @@ describe('OutputService', () => {
   });
 
   describe('endStream', () => {
-    it('should emit endOutput', async () => {
+    it('should emit endOutput with length and input key', async () => {
       const { service, mockSocket1 } = await setup();
 
       service.stream('chunk1', 'game123');
       service.stream('chunk2', 'game123');
 
-      service.endStream('game123');
-      expect(mockSocket1.emit).toHaveBeenCalledWith('endOutput', 2);
+      service.endStream('game123', InputKey.ACTION);
+      expect(mockSocket1.emit).toHaveBeenCalledWith('endOutput', {
+        length: 2,
+        responseKey: InputKey.ACTION,
+      });
     });
 
     it('should return joined chunks', async () => {
@@ -109,7 +113,7 @@ describe('OutputService', () => {
       service.stream('chunk1', 'game123');
       service.stream('chunk2', 'game123');
 
-      const result = service.endStream('game123');
+      const result = service.endStream('game123', InputKey.ACTION);
       expect(result).toBe('chunk1chunk2');
     });
 
@@ -119,10 +123,10 @@ describe('OutputService', () => {
       service.stream('chunk1', 'game123');
       service.stream('chunk2', 'game123');
 
-      const result1 = service.endStream('game123');
+      const result1 = service.endStream('game123', InputKey.ACTION);
       expect(result1).toBe('chunk1chunk2');
 
-      const result2 = service.endStream('game123');
+      const result2 = service.endStream('game123', InputKey.ACTION);
       expect(result2).toBe('');
     });
 
@@ -133,14 +137,21 @@ describe('OutputService', () => {
       service.stream('chunk3', 'game456');
       service.stream('chunk2', 'game123');
       service.stream('chunk4', 'game456');
+      service.stream('chunk5', 'game123');
 
-      const result1 = service.endStream('game123');
-      const result2 = service.endStream('game456');
+      const result1 = service.endStream('game123', InputKey.ACTION);
+      const result2 = service.endStream('game456', InputKey.ACTION);
 
-      expect(mockSocket1.emit).toHaveBeenCalledWith('endOutput', 2);
-      expect(mockSocket2.emit).toHaveBeenCalledWith('endOutput', 2);
+      expect(mockSocket1.emit).toHaveBeenCalledWith('endOutput', {
+        length: 3,
+        responseKey: InputKey.ACTION,
+      });
+      expect(mockSocket2.emit).toHaveBeenCalledWith('endOutput', {
+        length: 2,
+        responseKey: InputKey.ACTION,
+      });
 
-      expect(result1).toBe('chunk1chunk2');
+      expect(result1).toBe('chunk1chunk2chunk5');
       expect(result2).toBe('chunk3chunk4');
     });
   });
