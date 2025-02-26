@@ -4,19 +4,19 @@
  */
 
 import { tool } from '@langchain/core/tools';
-import { END } from '@langchain/langgraph';
+import { Command, END } from '@langchain/langgraph';
 import { ExitEvent } from 'src/lang_graph/entities/output_events';
 import { OutputService } from 'src/shared/output.service';
 import { z } from 'zod';
 
 // TODO: Add exit confirmation step
 export function exitToolFactory(outputService: OutputService) {
-  async function exitTool(_, config) {
+  function exitTool(_, config): Command {
     outputService.sendEvent<void, ExitEvent>(
       { type: 'exit' },
       config.configurable.thread_id, // Config thread_id matched gameId by design
     );
-    return { next: END };
+    return new Command({ goto: END });
   }
   return tool(exitTool, {
     name: 'exit_game',

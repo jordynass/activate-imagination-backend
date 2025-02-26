@@ -5,7 +5,13 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import { StateGraph, START, MemorySaver, Command } from '@langchain/langgraph';
+import {
+  StateGraph,
+  START,
+  MemorySaver,
+  Command,
+  END,
+} from '@langchain/langgraph';
 import { GraphAnnotation } from 'src/lang_graph/entities/state';
 import { StoryDto } from 'src/lang_graph/entities/io';
 import { sceneNode } from 'src/lang_graph/nodes/scene_node';
@@ -20,6 +26,7 @@ import {
 import { heroActionNode } from '../nodes/hero_nodes/hero_action_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
+import { heroSceneNode } from '../nodes/hero_nodes/hero_scene_node';
 
 @Injectable()
 export class GraphService {
@@ -71,13 +78,17 @@ export class GraphService {
     return graphBuilder
       .addNode('sceneNode', sceneNode)
       .addNode('heroActionNode', heroActionNode)
+      .addNode('heroSceneNode', heroSceneNode)
       .addNode('gameMasterNode', this.gameMasterNode, {
         ends: ['toolNode', 'heroActionNode'],
       })
-      .addNode('toolNode', new ToolNode(this.tools))
+      .addNode('toolNode', new ToolNode(this.tools), {
+        ends: [END, 'heroSceneNode'],
+      })
       .addEdge(START, 'sceneNode')
       .addEdge('sceneNode', 'heroActionNode')
       .addEdge('heroActionNode', 'gameMasterNode')
+      .addEdge('heroSceneNode', 'sceneNode')
       .compile({ checkpointer: this.memory });
   }
 
