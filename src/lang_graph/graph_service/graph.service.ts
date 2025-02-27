@@ -40,6 +40,7 @@ export class GraphService {
   async startGame(input: StoryDto) {
     this.graph = this.graph ?? this.buildGraph();
     const config = toConfig(input.gameId);
+    const { gameId } = input;
     this.configs.push(config);
 
     let nextState: Command | typeof GraphAnnotation.State =
@@ -47,14 +48,10 @@ export class GraphService {
     let nextNodeList = [START];
     do {
       if (nextNodeList.includes('heroActionNode')) {
-        const action = await this.asyncInputService.requestInput(
-          InputKey.ACTION,
-          input.gameId,
-        );
-        const actionMessage = new HumanMessage(action, {
-          inputKey: InputKey.ACTION,
-        });
-        nextState = new Command({ resume: actionMessage });
+        nextState = await this.handleHeroActionNode(gameId);
+      }
+      if (nextNodeList.includes('heroSceneNode')) {
+        nextState = await this.handleHeroSceneNode(gameId);
       }
       const stream = await this.graph.stream(nextState, config);
       for await (const [msg] of stream) {
@@ -62,10 +59,34 @@ export class GraphService {
           this.outputService.stream(getAIMessageChunkText(msg), input.gameId);
         }
       }
-      this.outputService.endStream(input.gameId, InputKey.ACTION);
       const state = await this.getState(input.gameId);
       nextNodeList = state.next;
     } while (nextNodeList?.length);
+  }
+
+  private async handleHeroActionNode(gameId: string): Promise<Command> {
+    this.outputService.endStream(gameId, InputKey.ACTION);
+    const action = await this.asyncInputService.requestInput(
+      InputKey.ACTION,
+      gameId,
+    );
+    const actionMessage = new HumanMessage(action);
+    return new Command({ resume: actionMessage });
+  }
+
+  private async handleHeroSceneNode(gameId: string): Promise<Command> {
+    this.outputService.endStream(gameId, InputKey.NEW_SCENE);
+    const photo = await this.asyncInputService.requestInput(
+      InputKey.NEW_SCENE,
+      gameId,
+    );
+    return new Command({
+      update: {
+        currentScene: {
+          photo,
+        },
+      },
+    });
   }
 
   private buildGraph() {

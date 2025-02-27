@@ -120,32 +120,56 @@ describe('GraphService', () => {
 
     it('should only send ai messages to outputService', async () => {
       const { service, mockOutputService } = await setup();
-      const mockInput = {};
 
-      await service.startGame(mockInput);
+      await service.startGame({});
 
       expect(mockOutputService.stream).not.toHaveBeenCalledWith('foo');
     });
 
-    it('should end stream after all messages', async () => {
-      const { service, mockOutputService } = await setup();
-      const mockInput = {};
+    it('should end stream with ACTION input key for heroActionNode', async () => {
+      const { service, mockAsyncInputService, mockOutputService, mockGraph } =
+        await setup();
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroActionNode'] });
+      mockAsyncInputService.requestInput.mockReturnValue(
+        'I shall duck behind that little garbage car.',
+      );
 
-      await service.startGame(mockInput);
+      await service.startGame({ gameId: 'game123' });
 
-      expect(mockOutputService.endStream).toHaveBeenCalled();
+      expect(mockOutputService.endStream).toHaveBeenCalledWith(
+        'game123',
+        InputKey.ACTION,
+      );
     });
 
-    it('should stream graph again if state has a next node', async () => {
-      const { service, mockOutputService, mockGraph } = await setup();
-      mockGraph.getState.mockReturnValueOnce({ next: ['fooNode'] });
-      mockGraph.getState.mockReturnValueOnce({ next: ['barNode'] });
+    it('should end stream with NEW_SCENE input key for heroSceneNode', async () => {
+      const { service, mockAsyncInputService, mockOutputService, mockGraph } =
+        await setup();
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroSceneNode'] });
+      mockAsyncInputService.requestInput.mockReturnValue('base64-image-string');
+
+      await service.startGame({ gameId: 'game123' });
+
+      expect(mockOutputService.endStream).toHaveBeenCalledWith(
+        'game123',
+        InputKey.NEW_SCENE,
+      );
+    });
+
+    it('should stream graph again after each hero response', async () => {
+      const { service, mockAsyncInputService, mockOutputService, mockGraph } =
+        await setup();
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroActionNode'] });
+      mockGraph.getState.mockReturnValueOnce({ next: ['heroSceneNode'] });
       mockGraph.getState.mockReturnValue({ next: [] });
+      mockAsyncInputService.requestInput.mockReturnValue(
+        'Text or a base64 image',
+      );
 
       await service.startGame({});
 
       expect(mockGraph.stream).toHaveBeenCalledTimes(3);
-      expect(mockOutputService.endStream).toHaveBeenCalledTimes(3);
+      expect(mockOutputService.endStream).toHaveBeenCalledTimes(2);
     });
 
     it('should request action input for heroActionNode', async () => {
