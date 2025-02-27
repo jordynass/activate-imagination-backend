@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ActionDto } from 'src/lang_graph/entities/io';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 
 @Injectable()
 export class AsyncInputService {
@@ -33,9 +34,3 @@ export class AsyncInputService {
 
 const toMapKey = (key: InputKey, gameId: string) =>
   JSON.stringify({ key, gameId });
-
-export enum InputKey {
-  ACTION,
-  NEW_SCENE,
-  UNKNOWN,
-}

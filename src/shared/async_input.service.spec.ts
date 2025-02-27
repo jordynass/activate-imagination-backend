@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AsyncInputService, InputKey } from './async_input.service';
+import { AsyncInputService } from './async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 
 describe('AsyncInputService', () => {
   async function setup() {

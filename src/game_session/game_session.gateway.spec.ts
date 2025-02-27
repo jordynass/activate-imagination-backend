@@ -4,7 +4,9 @@ import { TEST_ONLY } from './game_session.gateway';
 import { AppService } from 'src/app.service';
 import { OutputService } from 'src/shared/output.service';
 import { SceneDto, StoryDto } from 'src/lang_graph/entities/io';
-import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
+import { AsyncInputService } from 'src/shared/async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
+
 import { ClientService } from 'src/shared/client.service';
 
 describe('GameSessionGateway', () => {

@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GraphService, TEST_ONLY } from './graph.service';
 import { OutputService } from 'src/shared/output.service';
-import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
+import { AsyncInputService } from 'src/shared/async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 import { AIMessageChunk, HumanMessage } from '@langchain/core/messages';
 import { Command } from '@langchain/langgraph';
 

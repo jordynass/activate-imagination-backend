@@ -16,7 +16,8 @@ import {
   type SceneDto,
   type StoryDto,
 } from 'src/lang_graph/entities/io';
-import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
+import { AsyncInputService } from 'src/shared/async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 import { ClientService } from 'src/shared/client.service';
 
 @WebSocketGateway()

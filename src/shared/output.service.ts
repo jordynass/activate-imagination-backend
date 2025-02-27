@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { OutputEvent } from 'src/lang_graph/entities/output_events';
-import { InputKey } from './async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 
 @Injectable()
 export class OutputService {

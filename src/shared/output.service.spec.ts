@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OutputService } from './output.service';
 import { ClientService } from './client.service';
 import { Socket } from 'socket.io';
-import { InputKey } from './async_input.service';
+import { InputKey } from 'src/lang_graph/entities/input_events';
 
 describe('OutputService', () => {
   async function setup() {
