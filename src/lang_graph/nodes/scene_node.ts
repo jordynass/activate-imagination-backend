@@ -7,15 +7,16 @@ import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { GraphAnnotation } from '../entities/state';
 import { newLlm } from 'src/lang_graph/llm';
 import { HumanMessage } from '@langchain/core/messages';
-// import { AIMessageChunk } from '@langchain/core/messages';
+import { getAIMessageChunkText, newId } from 'src/shared/utils';
 
 export async function sceneNode(state: typeof GraphAnnotation.State) {
+  const { photo } = state.currentScene;
   const { messages } = await promptTemplate.invoke({
     storyPrompt: state.storyPrompt,
   });
   messages.push(
     new HumanMessage({
-      content: state.currentScene.photo
+      content: photo
         ? [
             {
               type: 'text',
@@ -24,7 +25,7 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
             {
               type: 'image_url',
               image_url: {
-                url: `data:image/jpeg;base64,${state.currentScene.photo}`,
+                url: `data:image/jpeg;base64,${photo}`,
               },
             },
           ]
@@ -40,7 +41,12 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
   //   ],
   // };
   const response = await newLlm().invoke(messages);
-  return { messages: [response] };
+  const intro = getAIMessageChunkText(response);
+  const id = newId();
+  return {
+    messages: [response],
+    currentScene: { photo, id, intro },
+  };
 }
 
 const promptTemplate = ChatPromptTemplate.fromMessages([

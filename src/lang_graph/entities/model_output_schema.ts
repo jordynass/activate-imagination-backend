@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CharacterSchema = z.object({
-  id: z.number().describe('A unique integer ID'),
+  id: z.string().describe('A random 5 character alphanumeric ID string'),
   name: z.string().describe('The name most commonly used for the character'),
   current: z.string().describe(
     'A one or two sentence description of the character\'s current situation. If they are interacting \
@@ -16,7 +16,7 @@ with another character or item, refer to as XML tags, e.g. <Character id="5">Bob
 });
 
 export const ItemSchema = z.object({
-  id: z.number().describe('A unique integer ID'),
+  id: z.string().describe('A random 5 character alphanumeric ID string'),
   real: z.string().describe('A physical object in the real world'),
   fantasy: z
     .string()
@@ -26,7 +26,7 @@ export const ItemSchema = z.object({
 });
 
 export const SettingSchema = z.object({
-  id: z.number().describe('A unique integer ID'),
+  id: z.string().describe('A random 5 character alphanumeric ID string'),
   setting: z.string().describe(
     'A physical description of the fantasy setting of persistent \
 attributes of the state. This should consist of sensory details (mostly visual) \

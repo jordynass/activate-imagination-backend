@@ -19,7 +19,7 @@ export async function prepareInputNode(
     messages,
     storyPrompt: input.storyPrompt,
     currentScene: { photo: input.photo },
-    sceneById: new Map<number, Scene>(),
+    sceneById: new Map<string, Scene>(),
   };
 }
 

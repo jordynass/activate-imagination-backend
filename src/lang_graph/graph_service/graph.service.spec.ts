@@ -198,31 +198,3 @@ describe('toConfig helper', () => {
     });
   });
 });
-
-describe('getAIMessageChunkText helper', () => {
-  it('extracts text from simple messages', () => {
-    const { getAIMessageChunkText } = TEST_ONLY;
-    const result = getAIMessageChunkText(new AIMessageChunk('some content'));
-    expect(result).toEqual('some content');
-  });
-
-  it('extracts text from complex messages', () => {
-    const { getAIMessageChunkText } = TEST_ONLY;
-    const result = getAIMessageChunkText(
-      new AIMessageChunk({
-        content: [
-          {
-            type: 'text_delta',
-            text: 'some ',
-          },
-          {
-            type: 'text_delta',
-            text: 'content',
-          },
-        ],
-      }),
-    );
-    expect(result).toEqual('some content');
-  });
-  //
-});

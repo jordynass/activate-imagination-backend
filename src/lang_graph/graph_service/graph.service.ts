@@ -17,16 +17,12 @@ import { StoryDto } from 'src/lang_graph/entities/io';
 import { sceneNode } from 'src/lang_graph/nodes/scene_node';
 import { prepareInputNode } from 'src/lang_graph/nodes/prepare_input_node';
 import { OutputService } from 'src/shared/output.service';
-import {
-  AIMessageChunk,
-  HumanMessage,
-  isAIMessageChunk,
-  MessageContentComplex,
-} from '@langchain/core/messages';
+import { HumanMessage, isAIMessageChunk } from '@langchain/core/messages';
 import { heroActionNode } from '../nodes/hero_nodes/hero_action_node';
 import { AsyncInputService, InputKey } from 'src/shared/async_input.service';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { heroSceneNode } from '../nodes/hero_nodes/hero_scene_node';
+import { getAIMessageChunkText } from 'src/shared/utils';
 
 @Injectable()
 export class GraphService {
@@ -108,13 +104,4 @@ function toConfig(gameId: string) {
   };
 }
 
-function getAIMessageChunkText(chunk: AIMessageChunk): string {
-  if (typeof chunk.content === 'string') {
-    return chunk.content;
-  }
-  const complexContentList: MessageContentComplex[] = chunk.content;
-  const allText = complexContentList.map((mcc) => (mcc as any).text ?? '');
-  return allText.join('');
-}
-
-export const TEST_ONLY = { toConfig, getAIMessageChunkText };
+export const TEST_ONLY = { toConfig };

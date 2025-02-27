@@ -1,20 +1,20 @@
 import { BaseMessage } from '@langchain/core/messages';
 import { Annotation, messagesStateReducer } from '@langchain/langgraph';
 
-export type Scene = {
-  id: number;
+export interface Scene {
+  id: string;
   photo: string;
   intro: string;
   setting: string;
-  itemIds: Set<number>;
-  characterIds: Set<number>;
-};
+  itemIds: Set<string>;
+  characterIds: Set<string>;
+}
 
-type SceneMonitor = {
-  id: number;
+interface SceneMonitor {
+  id: string;
   photo: string;
   intro: string;
-};
+}
 
 export const GraphAnnotation = Annotation.Root({
   gameId: Annotation<string>,
@@ -23,9 +23,9 @@ export const GraphAnnotation = Annotation.Root({
     default: () => [],
   }),
   currentScene: Annotation<Partial<SceneMonitor>>,
-  sceneById: Annotation<Map<number, Scene>>({
-    reducer: (oldMap: Map<number, Scene>, newMap: Map<number, Scene>) => {
-      const combinedMap = new Map<number, Scene>(oldMap);
+  sceneById: Annotation<Map<string, Scene>>({
+    reducer: (oldMap: Map<string, Scene>, newMap: Map<string, Scene>) => {
+      const combinedMap = new Map<string, Scene>(oldMap);
       for (const id of newMap.keys()) {
         const oldScene = oldMap.get(id) ?? {};
         const newScene = newMap.get(id);
@@ -33,7 +33,7 @@ export const GraphAnnotation = Annotation.Root({
       }
       return combinedMap;
     },
-    default: () => new Map<number, Scene>(),
+    default: () => new Map<string, Scene>(),
   }),
   storyPrompt: Annotation<string>,
 });
