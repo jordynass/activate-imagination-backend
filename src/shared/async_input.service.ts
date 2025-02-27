@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ActionDto } from 'src/lang_graph/entities/io';
 import { InputKey } from 'src/lang_graph/entities/input_events';
+import { assert } from './utils';
 
 @Injectable()
 export class AsyncInputService {
@@ -11,7 +12,7 @@ export class AsyncInputService {
     const requestQueue = this.requestQueueMap.get(toMapKey(key, gameId)) ?? [];
     const inputQueue = this.inputQueueMap.get(toMapKey(key, gameId)) ?? [];
     if (requestQueue.length > 0) {
-      const { resolve } = requestQueue.shift();
+      const { resolve } = assert(requestQueue.shift());
       resolve(text);
     } else {
       inputQueue.push(text);
@@ -23,7 +24,7 @@ export class AsyncInputService {
     const requestQueue = this.requestQueueMap.get(toMapKey(key, gameId)) ?? [];
     const inputQueue = this.inputQueueMap.get(toMapKey(key, gameId)) ?? [];
     if (inputQueue.length > 0) {
-      return inputQueue.shift();
+      return assert(inputQueue.shift());
     }
     const inputPromise = Promise.withResolvers<string>();
     requestQueue.push(inputPromise);

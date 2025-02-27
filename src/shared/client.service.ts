@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { assert } from './utils';
 
 /**
  * Service for tracking client sockets. It is in a self-contained service to
@@ -23,6 +24,6 @@ export class ClientService {
         `Game ID ${gameId} has not been set so there is no client to return`,
       );
     }
-    return this.clientMap.get(gameId);
+    return assert(this.clientMap.get(gameId));
   }
 }

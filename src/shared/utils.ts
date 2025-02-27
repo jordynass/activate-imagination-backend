@@ -2,6 +2,7 @@ import {
   AIMessageChunk,
   MessageContentComplex,
 } from '@langchain/core/messages';
+import { AssertionError } from 'assert';
 
 export function getAIMessageChunkText(chunk: AIMessageChunk): string {
   if (typeof chunk.content === 'string') {
@@ -26,4 +27,16 @@ export function newId(length: number = 5): string {
     () => alphabet[randomInt(alphabet.length)],
   );
   return idCharacters.join('');
+}
+
+/** This is factored rather than used from a library to support non-fatal prod assertions */
+export function assert<T>(value: T | undefined | null): T {
+  if (value === null || value === undefined) {
+    // TODO: Graceful handling in Prod
+    throw new AssertionError({
+      expected: 'Something non-null and non-undefined',
+      actual: value,
+    });
+  }
+  return value;
 }
