@@ -57,7 +57,11 @@ export class GameSessionGateway
       stringifyWithTruncation(sceneData),
     );
 
-    this.asyncInputService.sendInput(sceneData, InputKey.NEW_SCENE);
+    this.asyncInputService.sendInput({
+      key: InputKey.NEW_SCENE,
+      gameId: sceneData.gameId,
+      payload: sceneData.photo,
+    });
     return 'New scene';
   }
 
@@ -94,7 +98,11 @@ export class GameSessionGateway
 
     const actionData: ActionDto = validation.data;
 
-    this.asyncInputService.sendInput(actionData, InputKey.ACTION);
+    this.asyncInputService.sendInput({
+      key: InputKey.ACTION,
+      gameId: actionData.gameId,
+      payload: actionData.text,
+    });
     return 'Action';
   }
 }

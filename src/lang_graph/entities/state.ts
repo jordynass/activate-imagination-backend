@@ -1,5 +1,6 @@
 import { BaseMessage } from '@langchain/core/messages';
 import { Annotation, messagesStateReducer } from '@langchain/langgraph';
+import { assert } from 'src/shared/utils';
 
 export interface Scene {
   id: string;
@@ -12,7 +13,7 @@ export interface Scene {
 
 interface SceneMonitor {
   id: string;
-  photo: string;
+  photo: string | null; // See StorySchema definition for comment explaining nullability. TODO: Remove "| null".
   intro: string;
 }
 
@@ -28,7 +29,7 @@ export const GraphAnnotation = Annotation.Root({
       const combinedMap = new Map<string, Scene>(oldMap);
       for (const id of newMap.keys()) {
         const oldScene = oldMap.get(id) ?? {};
-        const newScene = newMap.get(id);
+        const newScene = assert(newMap.get(id));
         combinedMap.set(id, { ...oldScene, ...newScene });
       }
       return combinedMap;

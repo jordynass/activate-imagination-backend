@@ -126,10 +126,11 @@ describe('GameSessionGateway', () => {
     };
 
     gateway.handleAction(action);
-    expect(mockAsyncInputService.sendInput).toHaveBeenCalledWith(
-      action,
-      InputKey.ACTION,
-    );
+    expect(mockAsyncInputService.sendInput).toHaveBeenCalledWith({
+      payload: 'I will look under the small rock',
+      gameId: 'game123',
+      key: InputKey.ACTION,
+    });
   });
 });
 

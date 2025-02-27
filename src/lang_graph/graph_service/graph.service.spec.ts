@@ -63,7 +63,7 @@ describe('GraphService', () => {
       const { service, mockPrepareInputNode } = await setup();
       const mockInput = {};
 
-      await service.startGame(mockInput);
+      await service.startGame(mockInput as any);
 
       expect(mockPrepareInputNode).toHaveBeenCalledWith(mockInput);
     });
@@ -72,8 +72,8 @@ describe('GraphService', () => {
       const { service } = await setup();
       const mockInput = {};
 
-      await service.startGame(mockInput);
-      await service.startGame(mockInput);
+      await service.startGame(mockInput as any);
+      await service.startGame(mockInput as any);
 
       expect(service['configs']).toHaveLength(2);
     });
@@ -82,7 +82,7 @@ describe('GraphService', () => {
       const { service } = await setup();
       const mockInput = { gameId: 'game123' };
 
-      await service.startGame(mockInput);
+      await service.startGame(mockInput as any);
 
       expect(service['configs'][0].configurable.thread_id).toBe('game123');
     });
@@ -91,7 +91,7 @@ describe('GraphService', () => {
       const { service, mockOutputService } = await setup();
       const mockInput = { gameId: 'game123' };
 
-      await service.startGame(mockInput);
+      await service.startGame(mockInput as any);
 
       expect(mockOutputService.stream).toHaveBeenCalledWith(
         'chunk1',
@@ -107,7 +107,7 @@ describe('GraphService', () => {
       const { service, mockOutputService } = await setup();
       const mockInput = { gameId: 'game123' };
 
-      await service.startGame(mockInput);
+      await service.startGame(mockInput as any);
 
       expect(mockOutputService.stream).toHaveBeenCalledWith(
         'chunk1',
@@ -122,7 +122,7 @@ describe('GraphService', () => {
     it('should only send ai messages to outputService', async () => {
       const { service, mockOutputService } = await setup();
 
-      await service.startGame({});
+      await service.startGame({} as any);
 
       expect(mockOutputService.stream).not.toHaveBeenCalledWith('foo');
     });
@@ -135,7 +135,7 @@ describe('GraphService', () => {
         'I shall duck behind that little garbage car.',
       );
 
-      await service.startGame({ gameId: 'game123' });
+      await service.startGame({ gameId: 'game123' } as any);
 
       expect(mockOutputService.endStream).toHaveBeenCalledWith(
         'game123',
@@ -149,7 +149,7 @@ describe('GraphService', () => {
       mockGraph.getState.mockReturnValueOnce({ next: ['heroSceneNode'] });
       mockAsyncInputService.requestInput.mockReturnValue('base64-image-string');
 
-      await service.startGame({ gameId: 'game123' });
+      await service.startGame({ gameId: 'game123' } as any);
 
       expect(mockOutputService.endStream).toHaveBeenCalledWith(
         'game123',
@@ -167,7 +167,7 @@ describe('GraphService', () => {
         'Text or a base64 image',
       );
 
-      await service.startGame({});
+      await service.startGame({} as any);
 
       expect(mockGraph.stream).toHaveBeenCalledTimes(3);
       expect(mockOutputService.endStream).toHaveBeenCalledTimes(2);
@@ -181,7 +181,7 @@ describe('GraphService', () => {
         'I shall duck behind that little garbage car.',
       );
 
-      await service.startGame({ gameId: 'game123' });
+      await service.startGame({ gameId: 'game123' } as any);
 
       expect(mockAsyncInputService.requestInput).toHaveBeenCalledWith(
         InputKey.ACTION,
@@ -197,7 +197,7 @@ describe('GraphService', () => {
         'I shall duck behind that little garbage car.',
       );
 
-      await service.startGame({});
+      await service.startGame({} as any);
 
       expect(
         mockGraph.stream.mock.calls.some((argList) => {

@@ -1,5 +1,10 @@
 export enum InputKey {
   ACTION,
   NEW_SCENE,
-  UNKNOWN,
+}
+
+export interface InputEvent<Payload> {
+  key: InputKey;
+  gameId: string;
+  payload: Payload;
 }

@@ -15,10 +15,11 @@ describe('AsyncInputService', () => {
 
   it('should store input when no request is pending', async () => {
     const { service } = await setup();
-    service.sendInput(
-      { text: 'test-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'test-input',
+    });
 
     const inputQueue = (service as any).inputQueueMap.get(
       JSON.stringify({ key: InputKey.ACTION, gameId: 'game123' }),
@@ -29,21 +30,22 @@ describe('AsyncInputService', () => {
   it('should resolve pending request when input is sent', async () => {
     const { service } = await setup();
     const inputPromise = service.requestInput(InputKey.ACTION, 'game123');
-
-    service.sendInput(
-      { text: 'test-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'test-input',
+    });
 
     expect(await inputPromise).toBe('test-input');
   });
 
   it('should return input immediately if available', async () => {
     const { service } = await setup();
-    service.sendInput(
-      { text: 'test-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'test-input',
+    });
 
     const inputPromise = service.requestInput(InputKey.ACTION, 'game123');
 
@@ -52,14 +54,16 @@ describe('AsyncInputService', () => {
 
   it('should queue multiple inputs and resolve in order', async () => {
     const { service } = await setup();
-    service.sendInput(
-      { text: 'first-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
-    service.sendInput(
-      { text: 'second-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'first-input',
+    });
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'second-input',
+    });
 
     const firstResult = await service.requestInput(InputKey.ACTION, 'game123');
     const secondResult = await service.requestInput(InputKey.ACTION, 'game123');
@@ -71,42 +75,46 @@ describe('AsyncInputService', () => {
   it('directs input to the correct key for immediate input', async () => {
     const { service } = await setup();
 
-    service.sendInput(
-      { text: 'action-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
-    service.sendInput(
-      { text: 'unknown-input', gameId: 'game123' },
-      InputKey.UNKNOWN,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'action-input',
+    });
+    service.sendInput({
+      key: InputKey.NEW_SCENE,
+      gameId: 'game123',
+      payload: 'new-scene-input',
+    });
 
     const actionResult = await service.requestInput(InputKey.ACTION, 'game123');
-    const unknownResult = await service.requestInput(
-      InputKey.UNKNOWN,
+    const newSceneResult = await service.requestInput(
+      InputKey.NEW_SCENE,
       'game123',
     );
 
     expect(actionResult).toBe('action-input');
-    expect(unknownResult).toBe('unknown-input');
+    expect(newSceneResult).toBe('new-scene-input');
   });
 
   it('directs input to the correct key for pending requests', async () => {
     const { service } = await setup();
 
     const actionPromise = service.requestInput(InputKey.ACTION, 'game123');
-    const unknownPromise = service.requestInput(InputKey.UNKNOWN, 'game123');
+    const newScenePromise = service.requestInput(InputKey.NEW_SCENE, 'game123');
 
-    service.sendInput(
-      { text: 'action-input', gameId: 'game123' },
-      InputKey.ACTION,
-    );
-    service.sendInput(
-      { text: 'unknown-input', gameId: 'game123' },
-      InputKey.UNKNOWN,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'action-input',
+    });
+    service.sendInput({
+      key: InputKey.NEW_SCENE,
+      gameId: 'game123',
+      payload: 'new-scene-input',
+    });
 
     expect(await actionPromise).toBe('action-input');
-    expect(await unknownPromise).toBe('unknown-input');
+    expect(await newScenePromise).toBe('new-scene-input');
   });
 
   it('should handle multiple games independently for pending requests', async () => {
@@ -115,30 +123,34 @@ describe('AsyncInputService', () => {
     const actionPromise1 = service.requestInput(InputKey.ACTION, 'game123');
     const actionPromise2 = service.requestInput(InputKey.ACTION, 'game456');
 
-    service.sendInput(
-      { text: 'action-input1', gameId: 'game123' },
-      InputKey.ACTION,
-    );
-    service.sendInput(
-      { text: 'action-input2', gameId: 'game456' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'action-input123',
+    });
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game456',
+      payload: 'action-input456',
+    });
 
-    expect(await actionPromise1).toBe('action-input1');
-    expect(await actionPromise2).toBe('action-input2');
+    expect(await actionPromise1).toBe('action-input123');
+    expect(await actionPromise2).toBe('action-input456');
   });
 
   it('should handle multiple games independently for immediate input', async () => {
     const { service } = await setup();
 
-    service.sendInput(
-      { text: 'action-input1', gameId: 'game123' },
-      InputKey.ACTION,
-    );
-    service.sendInput(
-      { text: 'action-input2', gameId: 'game456' },
-      InputKey.ACTION,
-    );
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game123',
+      payload: 'action-input123',
+    });
+    service.sendInput({
+      key: InputKey.ACTION,
+      gameId: 'game456',
+      payload: 'action-input456',
+    });
 
     const actionResult1 = await service.requestInput(
       InputKey.ACTION,
@@ -149,7 +161,7 @@ describe('AsyncInputService', () => {
       'game456',
     );
 
-    expect(actionResult1).toBe('action-input1');
-    expect(actionResult2).toBe('action-input2');
+    expect(actionResult1).toBe('action-input123');
+    expect(actionResult2).toBe('action-input456');
   });
 });

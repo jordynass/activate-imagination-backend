@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { ActionDto } from 'src/lang_graph/entities/io';
-import { InputKey } from 'src/lang_graph/entities/input_events';
+import {
+  type InputEvent,
+  InputKey,
+} from 'src/lang_graph/entities/input_events';
 import { assert } from './utils';
 
 @Injectable()
 export class AsyncInputService {
-  private inputQueueMap = new Map<string, string[]>();
-  private requestQueueMap = new Map<string, PromiseWithResolvers<string>[]>();
+  // This typing is a lazy because the InputKey determines the Payload type for a given queue.
+  // That said, I don't think the additional type safety is worth the effort of refactoring into
+  // nested maps to support InputKey-specific Payload types.
+  private inputQueueMap = new Map<string, any[]>();
+  private requestQueueMap = new Map<string, PromiseWithResolvers<any>[]>();
 
-  sendInput({ text, gameId }: ActionDto, key: InputKey) {
+  sendInput<Payload>({ key, gameId, payload }: InputEvent<Payload>) {
     const requestQueue = this.requestQueueMap.get(toMapKey(key, gameId)) ?? [];
     const inputQueue = this.inputQueueMap.get(toMapKey(key, gameId)) ?? [];
     if (requestQueue.length > 0) {
       const { resolve } = assert(requestQueue.shift());
-      resolve(text);
+      resolve(payload);
     } else {
-      inputQueue.push(text);
+      inputQueue.push(payload);
       this.inputQueueMap.set(toMapKey(key, gameId), inputQueue);
     }
   }

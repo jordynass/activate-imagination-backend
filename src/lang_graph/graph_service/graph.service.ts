@@ -27,7 +27,6 @@ import { getAIMessageChunkText } from 'src/shared/utils';
 
 @Injectable()
 export class GraphService {
-  private graph = null;
   private memory = new MemorySaver();
   private configs: Array<{ configurable: { thread_id: string } }> = [];
 
@@ -39,7 +38,7 @@ export class GraphService {
   ) {}
 
   async startGame(input: StoryDto) {
-    this.graph = this.graph ?? this.buildGraph();
+    const graph = this.buildGraph();
     const config = toConfig(input.gameId);
     const { gameId } = input;
     this.configs.push(config);
@@ -54,13 +53,13 @@ export class GraphService {
       if (nextNodeList.includes('heroSceneNode')) {
         nextState = await this.handleHeroSceneNode(gameId);
       }
-      const stream = await this.graph.stream(nextState, config);
+      const stream = await graph.stream(nextState, config);
       for await (const [msg] of stream) {
         if (isAIMessageChunk(msg)) {
           this.outputService.stream(getAIMessageChunkText(msg), input.gameId);
         }
       }
-      const state = await this.getState(input.gameId);
+      const state = await graph.getState(config);
       nextNodeList = state.next;
     } while (nextNodeList?.length);
   }
@@ -92,7 +91,6 @@ export class GraphService {
 
   private buildGraph() {
     const graphBuilder = new StateGraph(GraphAnnotation);
-
     return graphBuilder
       .addNode('sceneNode', sceneNode)
       .addNode('heroActionNode', heroActionNode)
@@ -109,20 +107,12 @@ export class GraphService {
       .addEdge('heroSceneNode', 'sceneNode')
       .compile({ checkpointer: this.memory });
   }
-
-  async getState(gameId: string) {
-    return await this.graph.getState(toConfig(gameId));
-  }
-
-  async getStateHistory(gameId: string) {
-    return await this.graph.getStateHistory(toConfig(gameId));
-  }
 }
 
 function toConfig(gameId: string) {
   return {
     configurable: { thread_id: gameId },
-    streamMode: 'messages',
+    streamMode: 'messages' as const,
   };
 }
 
