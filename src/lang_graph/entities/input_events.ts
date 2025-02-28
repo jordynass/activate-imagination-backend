@@ -1,6 +1,6 @@
 export enum InputKey {
-  ACTION,
-  NEW_SCENE,
+  ACTION = 'action',
+  NEW_SCENE = 'newScene',
 }
 
 export interface InputEvent<Payload> {
