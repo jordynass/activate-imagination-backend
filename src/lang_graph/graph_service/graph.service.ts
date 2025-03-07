@@ -80,13 +80,7 @@ export class GraphService {
       InputKey.NEW_SCENE,
       gameId,
     );
-    return new Command({
-      update: {
-        currentScene: {
-          photo,
-        },
-      },
-    });
+    return new Command({ resume: photo });
   }
 
   private buildGraph() {
