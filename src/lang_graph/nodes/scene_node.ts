@@ -6,33 +6,41 @@
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { GraphAnnotation } from '../entities/state';
 import { newLlm } from 'src/lang_graph/llm';
-import { HumanMessage } from '@langchain/core/messages';
-import { getAIMessageChunkText, newId } from 'src/shared/utils';
+import {
+  type BaseMessage,
+  HumanMessage,
+  RemoveMessage,
+  ToolMessage,
+} from '@langchain/core/messages';
+import { assert, getAIMessageChunkText, newId } from 'src/shared/utils';
 // import { AIMessageChunk } from '@langchain/core/messages';
 
 export async function sceneNode(state: typeof GraphAnnotation.State) {
   const { photo } = state.currentScene;
-  const { messages } = await promptTemplate.invoke({
-    storyPrompt: state.storyPrompt,
+  const { messages } = state;
+
+  const sceneGenerationSystemMessages = (
+    await promptTemplate.invoke({
+      storyPrompt: state.storyPrompt,
+    })
+  ).messages;
+  const previousActionMessages = messages.slice(1, -1); // Exclude the system message and the current scene request tool call
+  const sceneRequestMessage = new HumanMessage({
+    content: photo
+      ? [
+          {
+            type: 'text',
+            text: 'Describe this setting as though it were in my fantasy.',
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:image/jpeg;base64,${photo}`,
+            },
+          },
+        ]
+      : 'Describe the setting for a new scene in my fantasy.',
   });
-  messages.push(
-    new HumanMessage({
-      content: photo
-        ? [
-            {
-              type: 'text',
-              text: 'Describe this setting as though it were in my fantasy.',
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/jpeg;base64,${photo}`,
-              },
-            },
-          ]
-        : 'Describe the setting for a new scene in my fantasy.',
-    }),
-  );
   // UNCOMMENT TO FAKE LLM CALL:
   // return {
   //   messages: [
@@ -41,11 +49,21 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
   //     new AIMessageChunk('generation'),
   //   ],
   // };
-  const response = await newLlm().invoke(messages);
+  const toolCallId = getCurrentSceneRequestId(messages);
+  const sceneRequestMessages = [
+    ...sceneGenerationSystemMessages,
+    ...previousActionMessages,
+    sceneRequestMessage,
+  ];
+  const response = await newLlm().invoke(sceneRequestMessages);
   const intro = getAIMessageChunkText(response);
+  const toolCallResponse = new ToolMessage(intro, toolCallId);
   const id = newId();
+  const removeOldActionMessages = previousActionMessages.map(
+    (msg: BaseMessage) => new RemoveMessage({ id: assert(msg.id) }),
+  );
   return {
-    messages: [response],
+    messages: [toolCallResponse, ...removeOldActionMessages],
     currentScene: { photo, id, intro },
   };
 }
@@ -75,3 +93,17 @@ whose tough wrinkled skin tell of a tough life at sea). Cap your entire response
 at 250 words. Once you have explained the scene, ask me what I want to do."',
   ],
 ]);
+
+function getCurrentSceneRequestId(messages: BaseMessage[]): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    if ('tool_calls' in msg && Array.isArray(msg.tool_calls)) {
+      for (const toolCall of msg.tool_calls) {
+        if (toolCall.name === 'request_new_scene') {
+          return toolCall.id;
+        }
+      }
+    }
+  }
+  throw new Error('No ID found for a scene request tool call');
+}

@@ -17,6 +17,8 @@ export function requestNewSceneToolFactory(outputService: OutputService) {
       'Ask the user for a photo of their surroundings because their actions \
 led them into a new setting. For instance, if they open a door, climb up a \
 hill, or enter a cave.',
-    schema: z.object({}),
+    schema: z.object({
+      noOp: z.string().optional().describe('No-op parameter.'),
+    }),
   });
 }

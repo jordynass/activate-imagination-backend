@@ -7,6 +7,7 @@
 import { StoryDto } from 'src/lang_graph/entities/io';
 import { GraphAnnotation, type Scene } from 'src/lang_graph/entities/state';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { AIMessage } from '@langchain/core/messages';
 
 export async function prepareInputNode(
   input: StoryDto,
@@ -14,6 +15,27 @@ export async function prepareInputNode(
   const { messages } = await promptTemplate.invoke({
     storyPrompt: input.storyPrompt,
   });
+  messages.push(
+    new AIMessage({
+      content: [
+        { type: 'text', text: 'Describe the initial scene' },
+        {
+          type: 'tool_use',
+          id: 'tool_initial_scene_request',
+          name: 'request_new_scene',
+          input: {},
+        },
+      ],
+      tool_calls: [
+        {
+          name: 'request_new_scene',
+          args: {},
+          id: 'tool_initial_scene_request',
+          type: 'tool_call',
+        },
+      ],
+    }),
+  );
   return {
     gameId: input.gameId,
     messages,
