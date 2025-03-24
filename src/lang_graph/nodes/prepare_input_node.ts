@@ -45,14 +45,17 @@ export async function prepareInputNode(
   };
 }
 
+const HERO_AGE = 4;
+
 const promptTemplate = ChatPromptTemplate.fromMessages([
   [
     'system',
-    'I am a child on a themed treasure hunt and you are helping me to live out the following \
-fantasy adventure by narrating it for me:\
+    `I am a ${HERO_AGE} year old on a themed treasure hunt and you are helping me to live \
+out the following fantasy adventure by narrating it for me:\
 \n<Story Prompt>{storyPrompt}</Story Prompt>\n \
 Each time I request to start a new scene, you will describe the scene for me and ask me \
 what I want to do. Then you will chat with me as I interact with any objects or characters \
-in the scene. After scene exposition, cap each response at 200 words.',
+in the scene, keeping your language at a ${HERO_AGE} level. After scene exposition, cap \
+each response at 200 words.`,
   ],
 ]);

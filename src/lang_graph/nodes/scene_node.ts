@@ -68,15 +68,20 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
   };
 }
 
+const HERO_AGE = 4;
+
 const promptTemplate = ChatPromptTemplate.fromMessages([
   [
     'system',
-    'I am a child and you are helping design a themed treasure \
+    `I am a ${HERO_AGE} year old and you are helping design a themed treasure \
 hunt for me. As I explore the physical space, I will send you photos of my \
 current setting. If I forget to include a photo, you should pretend I\'m in a \
 school gymnasium. You must describe each of them as though it were a scene in \
-the following fantasy adventure:\n<Story Prompt>{storyPrompt}</Story \
-Prompt>\nWhen you describe the setting, pretend that real items in the room \
+the following fantasy adventure:
+
+<Story Prompt>{storyPrompt}</Story Prompt>
+
+When you describe the setting, pretend that real items in the room \
 are items that make sense in the fantasy that are similar in form or function. \
 For example, if the adventure is space-themed and the setting includes a TV \
 screen, the description could include "The ship\'s control panel (TV screen) \
@@ -90,7 +95,8 @@ physical description of one to two sentences. For example, if the adventure is \
 pirate themed, the description could include "In front of the ship\'s great \
 helm (analog clock) stands Captain Bucky (An experienced and sailor in his 50s \
 whose tough wrinkled skin tell of a tough life at sea). Cap your entire response \
-at 250 words. Once you have explained the scene, ask me what I want to do."',
+at 250 words. Once you have explained the scene, ask me what I want to do." \
+Throughout the game, you should keep your language at a ${HERO_AGE} level.`,
   ],
 ]);
 
