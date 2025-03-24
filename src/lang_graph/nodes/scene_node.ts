@@ -5,7 +5,7 @@
 
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { GraphAnnotation } from '../entities/state';
-import { newLlm } from 'src/lang_graph/llm';
+import { queryLlm } from 'src/lang_graph/llm';
 import {
   type BaseMessage,
   HumanMessage,
@@ -55,7 +55,7 @@ export async function sceneNode(state: typeof GraphAnnotation.State) {
     ...previousActionMessages,
     sceneRequestMessage,
   ];
-  const response = await newLlm().invoke(sceneRequestMessages);
+  const response = await queryLlm(sceneRequestMessages);
   const intro = getAIMessageChunkText(response);
   const toolCallResponse = new ToolMessage(intro, toolCallId);
   const id = newId();

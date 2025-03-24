@@ -5,13 +5,13 @@
 
 import { Command } from '@langchain/langgraph';
 import { GraphAnnotation } from '../entities/state';
-import { newLlm } from '../llm';
+import { queryLlm } from '../llm';
 
 export function gameMasterNodeFactory(tools) {
   async function gameMasterNode(
     state: typeof GraphAnnotation.State,
   ): Promise<Command> {
-    const nextMessage = await newLlm(tools).invoke(state.messages);
+    const nextMessage = await queryLlm(state.messages, tools);
     if (
       'tool_calls' in nextMessage &&
       Array.isArray(nextMessage.tool_calls) &&
